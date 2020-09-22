@@ -5,6 +5,7 @@ android {
 
     compileOptions {
         targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
     }
 
     defaultConfig {
@@ -19,6 +20,7 @@ android {
 
     buildFeatures {
         dataBinding true
+        viewBinding true
     }
 
     buildTypes {
@@ -30,30 +32,37 @@ android {
 }
 
 dependencies {
+
     def room_version = '2.2.5'
     def lombok_version = '1.18.12'
-    def paperparcel_version = '2.0.8'
-
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
     implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.sqlite:sqlite:2.1.0"
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+
     implementation 'com.google.android.gms:play-services-nearby:17.0.0'
-    implementation 'com.google.android.gms:play-services-ads:19.3.0'
+    implementation 'com.google.android.gms:play-services-ads:19.4.0'
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.google.android.material:material:1.2.1'
     implementation 'com.google.android.exoplayer:exoplayer:2.11.7'
+
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
+    implementation "net.zetetic:android-database-sqlcipher:4.4.0"
+
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 
     compileOnly "org.projectlombok:lombok:$lombok_version"
 
     annotationProcessor "androidx.room:room-compiler:$room_version"
     annotationProcessor "org.projectlombok:lombok:$lombok_version"
-
-    implementation 'nz.bradcampbell:paperparcel:2.0.7'
-    annotationProcessor 'nz.bradcampbell:paperparcel-compiler:2.0.7'
 
     testImplementation 'junit:junit:4.12'
     testImplementation "androidx.room:room-testing:$room_version"
