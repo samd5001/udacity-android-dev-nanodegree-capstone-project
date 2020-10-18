@@ -3,10 +3,12 @@ package com.sdunk.jiraestimator;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.sdunk.jiraestimator.data.db.DBExecutor;
-import com.sdunk.jiraestimator.data.db.user.UserDatabase;
-import com.sdunk.jiraestimator.data.model.User;
-import com.sdunk.jiraestimator.ui.login.LoginActivity;
+import com.sdunk.jiraestimator.db.DBExecutor;
+import com.sdunk.jiraestimator.db.user.UserDatabase;
+import com.sdunk.jiraestimator.model.User;
+import com.sdunk.jiraestimator.view.issues.IssueListActivity;
+import com.sdunk.jiraestimator.view.login.LoginActivity;
+import com.sdunk.jiraestimator.view.project.ProjectSelectActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -30,7 +32,7 @@ public class InitialActivity extends AppCompatActivity {
             if (user.getProjectKey() == null) {
                 intent.setClass(getApplicationContext(), ProjectSelectActivity.class);
             } else {
-                intent.setClass(getApplicationContext(), LoginActivity.class);
+                intent.setClass(getApplicationContext(), IssueListActivity.class);
             }
         }
 
