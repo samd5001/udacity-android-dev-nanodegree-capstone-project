@@ -11,5 +11,5 @@
         android:layout_marginRight="16dp"
         app:layoutManager="LinearLayoutManager"
         tools:context=".view.issues.IssueListActivity"
-        tools:listitem="@layout/issue_list_content" />
+        tools:listitem="@layout/issue_list_item" />
 </layout>

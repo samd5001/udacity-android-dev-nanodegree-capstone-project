@@ -18,7 +18,7 @@ import lombok.Getter;
 @Getter
 public class ProjectViewModel extends AndroidViewModel {
 
-    private LiveData<List<Project>> projects;
+    private final LiveData<List<Project>> projects;
     private User user;
 
     public ProjectViewModel(@NonNull Application application) {

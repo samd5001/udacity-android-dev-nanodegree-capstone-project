@@ -38,7 +38,7 @@ public class ProjectSelectActivity extends AppCompatActivity {
 
     private ActivityProjectSelectBinding binding;
 
-    private ArrayList<Project> projects = new ArrayList<>();
+    private final ArrayList<Project> projects = new ArrayList<>();
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {

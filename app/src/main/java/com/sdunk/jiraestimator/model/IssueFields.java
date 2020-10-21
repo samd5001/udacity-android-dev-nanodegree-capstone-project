@@ -6,4 +6,5 @@ import lombok.Data;
 public class IssueFields {
 
     private String summary;
+    private String description;
 }

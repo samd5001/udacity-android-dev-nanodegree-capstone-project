@@ -12,4 +12,7 @@
     <string name="invalid_email"></string>
     <string name="invalid_token"></string>
     <string name="login_api_error_message">An error occurred please check all entries are valid</string>
+    <string name="project_name">Project Name</string>
+    <string name="title_issue_list">Issues</string>
+    <string name="title_issue_detail">Issue Detail</string>
 </resources>

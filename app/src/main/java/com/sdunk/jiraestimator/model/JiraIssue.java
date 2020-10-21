@@ -15,6 +15,107 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "issues")
 public class JiraIssue implements Parcelable {
 
+    @PrimaryKey
+    @NonNull
+    private String id;
+    private String url;
+    private String key;
+    private String name;
+    private String description;
+    private Double storyPoints;
+
+
+    @NonNull
+    public String getId() {
+        return id;
+    }
+
+    public void setId(@NonNull String id) {
+        this.id = id;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Double getStoryPoints() {
+        return storyPoints;
+    }
+
+    public void setStoryPoints(Double storyPoints) {
+        this.storyPoints = storyPoints;
+    }
+
+    protected JiraIssue(Parcel in) {
+        id = in.readString();
+        url = in.readString();
+        key = in.readString();
+        name = in.readString();
+        description = in.readString();
+        if (in.readByte() == 0) {
+            storyPoints = null;
+        } else {
+            storyPoints = in.readDouble();
+        }
+    }
+
+    public JiraIssue(@NonNull String id, String url, String key, String name, String description, Double storyPoints) {
+        this.id = id;
+        this.url = url;
+        this.key = key;
+        this.name = name;
+        this.description = description;
+        this.storyPoints = storyPoints;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(url);
+        dest.writeString(key);
+        dest.writeString(name);
+        dest.writeString(description);
+        if (storyPoints == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeDouble(storyPoints);
+        }
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
     public static final Creator<JiraIssue> CREATOR = new Creator<JiraIssue>() {
         @Override
         public JiraIssue createFromParcel(Parcel in) {
@@ -26,82 +127,4 @@ public class JiraIssue implements Parcelable {
             return new JiraIssue[size];
         }
     };
-    @PrimaryKey
-    @NonNull
-    private String id;
-    private String self;
-    private String key;
-    private String description;
-    private List<String> comment;
-
-    public JiraIssue(@NonNull String id, String self, String key, String description, List<String> comment) {
-        this.id = id;
-        this.self = self;
-        this.key = key;
-        this.description = description;
-        this.comment = comment;
-    }
-
-    protected JiraIssue(Parcel in) {
-        id = Objects.requireNonNull(in.readString());
-        self = in.readString();
-        key = in.readString();
-        description = in.readString();
-        comment = in.createStringArrayList();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(id);
-        parcel.writeString(self);
-        parcel.writeString(key);
-        parcel.writeString(description);
-        parcel.writeStringList(comment);
-    }
-
-    @NonNull
-    public String getId() {
-        return id;
-    }
-
-    public void setId(@NonNull String id) {
-        this.id = id;
-    }
-
-    public String getSelf() {
-        return self;
-    }
-
-    public void setSelf(String self) {
-        this.self = self;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public List<String> getComment() {
-        return comment;
-    }
-
-    public void setComment(ArrayList<String> comment) {
-        this.comment = comment;
-    }
 }

@@ -12,9 +12,12 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import lombok.Getter;
 
+@Getter
 public class IssueListViewModel extends AndroidViewModel {
-    private LiveData<List<JiraIssue>> issues;
+
+    private final LiveData<List<JiraIssue>> issues;
 
     public IssueListViewModel(@NonNull Application application) {
         super(application);
