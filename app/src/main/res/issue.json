@@ -1,0 +1,188 @@
+{
+  "expand": "schema,names",
+  "startAt": 0,
+  "maxResults": 100,
+  "total": 11,
+  "issues": [
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "10010",
+      "self": "https://samsbuilds.atlassian.net/rest/api/3/issue/10010",
+      "key": "JE-11",
+      "fields": {
+        "summary": "Create Unit Tests and androidTests",
+        "customfield_10030": 21.0,
+        "description": {
+          "version": 1,
+          "type": "doc",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Descriptive"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Oh so very descriptive"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": []
+            },
+            {
+              "type": "paragraph",
+              "content": []
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "I think this is the way to do it ",
+                  "marks": [
+                    {
+                      "type": "strong"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "10009",
+      "self": "https://samsbuilds.atlassian.net/rest/api/3/issue/10009",
+      "key": "JE-10",
+      "fields": {
+        "summary": "Configure Mobile Ads SDK",
+        "customfield_10030": null,
+        "description": null
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "10008",
+      "self": "https://samsbuilds.atlassian.net/rest/api/3/issue/10008",
+      "key": "JE-9",
+      "fields": {
+        "summary": "Create Widget",
+        "customfield_10030": null,
+        "description": null
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "10007",
+      "self": "https://samsbuilds.atlassian.net/rest/api/3/issue/10007",
+      "key": "JE-8",
+      "fields": {
+        "summary": "Create Voting Activities ",
+        "customfield_10030": null,
+        "description": null
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "10006",
+      "self": "https://samsbuilds.atlassian.net/rest/api/3/issue/10006",
+      "key": "JE-7",
+      "fields": {
+        "summary": "Create Session Host Activities ",
+        "customfield_10030": null,
+        "description": null
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "10005",
+      "self": "https://samsbuilds.atlassian.net/rest/api/3/issue/10005",
+      "key": "JE-6",
+      "fields": {
+        "summary": "Create Story List Activities",
+        "customfield_10030": null,
+        "description": null
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "10004",
+      "self": "https://samsbuilds.atlassian.net/rest/api/3/issue/10004",
+      "key": "JE-5",
+      "fields": {
+        "summary": "Build Preference Activity",
+        "customfield_10030": null,
+        "description": null
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "10003",
+      "self": "https://samsbuilds.atlassian.net/rest/api/3/issue/10003",
+      "key": "JE-4",
+      "fields": {
+        "summary": "Create Login Activity",
+        "customfield_10030": null,
+        "description": null
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "10002",
+      "self": "https://samsbuilds.atlassian.net/rest/api/3/issue/10002",
+      "key": "JE-3",
+      "fields": {
+        "summary": "Setup Room Database ",
+        "customfield_10030": null,
+        "description": null
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "10001",
+      "self": "https://samsbuilds.atlassian.net/rest/api/3/issue/10001",
+      "key": "JE-2",
+      "fields": {
+        "summary": "Create Java Data Model",
+        "customfield_10030": 13.0,
+        "description": {
+          "version": 1,
+          "type": "doc",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "This is descriptive"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "10000",
+      "self": "https://samsbuilds.atlassian.net/rest/api/3/issue/10000",
+      "key": "JE-1",
+      "fields": {
+        "summary": "Configure Android Studio Project and Dependencies",
+        "customfield_10030": null,
+        "description": null
+      }
+    }
+  ]
+}

@@ -15,4 +15,7 @@
     <string name="project_name">Project Name</string>
     <string name="title_issue_list">Issues</string>
     <string name="title_issue_detail">Issue Detail</string>
+    <string name="current_points">Current Points:</string>
+    <string name="point_placeholder">13</string>
+    <string name="estimate">Estimate</string>
 </resources>

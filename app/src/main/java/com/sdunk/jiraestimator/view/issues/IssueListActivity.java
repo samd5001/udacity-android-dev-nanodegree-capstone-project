@@ -4,40 +4,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.sdunk.jiraestimator.R;
+import com.sdunk.jiraestimator.adapters.GenericRVAdapter;
+import com.sdunk.jiraestimator.api.APIUtils;
+import com.sdunk.jiraestimator.databinding.IssueListBinding;
+import com.sdunk.jiraestimator.databinding.IssueListItemBinding;
+import com.sdunk.jiraestimator.model.JiraIssue;
+
+import java.util.ArrayList;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
-import com.sdunk.jiraestimator.R;
-import com.sdunk.jiraestimator.adapters.GenericRVAdapter;
-import com.sdunk.jiraestimator.api.APIUtils;
-import com.sdunk.jiraestimator.api.JiraService;
-import com.sdunk.jiraestimator.databinding.ActivityIssueListBinding;
-import com.sdunk.jiraestimator.databinding.IssueListBinding;
-import com.sdunk.jiraestimator.databinding.IssueListContentBinding;
-import com.sdunk.jiraestimator.databinding.IssueListItemBinding;
-import com.sdunk.jiraestimator.model.JiraIssue;
-import com.sdunk.jiraestimator.view.issues.dummy.DummyContent;
-import com.sdunk.jiraestimator.view.project.ProjectViewModel;
-
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * An activity representing a list of Issues. This activity
- * has different presentations for handset and tablet-size devices. On
- * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link IssueDetailActivity} representing
- * item details. On tablets, the activity presents the list of items and
- * item details side-by-side using two vertical panes.
- */
 public class IssueListActivity extends AppCompatActivity {
 
     /**
@@ -46,9 +26,8 @@ public class IssueListActivity extends AppCompatActivity {
      */
     private boolean mTwoPane;
 
-    private ArrayList<JiraIssue> issues = new ArrayList<>();
+    private final ArrayList<JiraIssue> issues = new ArrayList<>();
 
-    private ActivityIssueListBinding activityBinding;
     private IssueListBinding listBinding;
 
     @Override
@@ -57,14 +36,10 @@ public class IssueListActivity extends AppCompatActivity {
 
         APIUtils.updateIssueCache(getApplicationContext());
 
-        activityBinding = DataBindingUtil.setContentView(this, R.layout.activity_issue_list);
+        com.sdunk.jiraestimator.databinding.ActivityIssueListBinding activityBinding = DataBindingUtil.setContentView(this, R.layout.activity_issue_list);
         listBinding = DataBindingUtil.getBinding(activityBinding.issueListLayout.issueList);
 
-        if (listBinding.issueDetailContainer != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-w900dp).
-            // If this view is present, then the
-            // activity should be in two-pane mode.
+        if (listBinding != null && listBinding.issueDetailContainer != null) {
             mTwoPane = true;
         }
 
@@ -86,7 +61,7 @@ public class IssueListActivity extends AppCompatActivity {
             public void onItemClick(JiraIssue issue, int position) {
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putParcelable(IssueDetailFragment.ARG_ITEM_ID, issue);
+                    arguments.putParcelable(IssueDetailFragment.ARG_ISSUE, issue);
                     IssueDetailFragment fragment = new IssueDetailFragment();
                     fragment.setArguments(arguments);
                     IssueListActivity.this.getSupportFragmentManager().beginTransaction()
@@ -95,8 +70,7 @@ public class IssueListActivity extends AppCompatActivity {
                 } else {
                     Context context = IssueListActivity.this.getApplicationContext();
                     Intent intent = new Intent(context, IssueDetailActivity.class);
-                    intent.putExtra(IssueDetailFragment.ARG_ITEM_ID, issue);
-
+                    intent.putExtra(IssueDetailFragment.ARG_ISSUE, issue);
                     startActivity(intent);
                 }
             }

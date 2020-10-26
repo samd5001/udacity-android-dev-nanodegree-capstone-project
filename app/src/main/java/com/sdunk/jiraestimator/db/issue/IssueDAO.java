@@ -16,7 +16,7 @@ import androidx.room.Update;
 public interface IssueDAO {
 
     @Query("SELECT * FROM issues WHERE id = :id")
-    JiraIssue loadIssueById(String id);
+    LiveData<JiraIssue> loadIssueById(String id);
 
     @Query("SELECT * FROM issues")
     LiveData<List<JiraIssue>> loadIssues();
