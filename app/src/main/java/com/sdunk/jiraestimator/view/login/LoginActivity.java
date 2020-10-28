@@ -52,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        binding.login.setOnClickListener(new View.OnClickListener() {
+        binding.loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 binding.loading.setVisibility(View.VISIBLE);
