@@ -13,21 +13,21 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         tools:context=".view.login.LoginActivity">
 
-        <EditText
-            android:id="@+id/url"
-            android:layout_width="0dp"
+        <Button
+            android:id="@+id/login_button"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="24dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="120dp"
-            android:autofillHints="URL for your Jira Cloud instance e.g. example.atlassian.net"
-            android:hint="@string/prompt_url"
-            android:inputType="textUri"
-            android:selectAllOnFocus="true"
-            android:text="@={viewModel.url}"
+            android:layout_gravity="start"
+            android:layout_marginBottom="64dp"
+            android:layout_marginEnd="48dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/action_sign_in"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/token"
+            app:layout_constraintVertical_bias="0.2" />
 
         <EditText
             android:id="@+id/email"
@@ -63,6 +63,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/email" />
 
+        <EditText
+            android:id="@+id/url"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="120dp"
+            android:autofillHints="URL for your Jira Cloud instance e.g. example.atlassian.net"
+            android:hint="@string/prompt_url"
+            android:inputType="textUri"
+            android:selectAllOnFocus="true"
+            android:text="@={viewModel.url}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <ProgressBar
             android:id="@+id/loading"
             android:layout_width="wrap_content"
@@ -79,25 +95,10 @@
             app:layout_constraintStart_toStartOf="@+id/token"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.409" />
-
-        <Button
-            android:id="@+id/login_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginBottom="64dp"
-            android:layout_marginEnd="48dp"
-            android:layout_marginStart="48dp"
-            android:layout_marginTop="16dp"
-            android:text="@string/action_sign_in"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/token"
-            app:layout_constraintVertical_bias="0.2" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <data>
+
         <variable
             name="viewModel"
             type="com.sdunk.jiraestimator.view.login.LoginViewModel" />

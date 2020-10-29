@@ -1,10 +1,8 @@
 package com.sdunk.jiraestimator.api;
 
 import com.google.gson.JsonObject;
-import com.sdunk.jiraestimator.db.issue.IssueDAO;
 import com.sdunk.jiraestimator.model.Field;
 import com.sdunk.jiraestimator.model.GenericResponse;
-import com.sdunk.jiraestimator.model.JiraIssue;
 import com.sdunk.jiraestimator.model.Project;
 
 import java.util.List;

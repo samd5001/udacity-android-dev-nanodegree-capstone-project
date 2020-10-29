@@ -24,11 +24,6 @@ public class ProjectViewModel extends AndroidViewModel {
     public ProjectViewModel(@NonNull Application application) {
         super(application);
         projects = ProjectDatabase.getInstance(getApplication()).projectDao().loadProjects();
-        DBExecutor.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                user = UserDatabase.getInstance(getApplication()).userDao().getLoggedInUser();
-            }
-        });
+        DBExecutor.getInstance().diskIO().execute(() -> user = UserDatabase.getInstance(getApplication()).userDao().getLoggedInUser());
     }
 }

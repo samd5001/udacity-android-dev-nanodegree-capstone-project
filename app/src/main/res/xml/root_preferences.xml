@@ -1,0 +1,13 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference
+        app:key="project"
+        app:title="@string/project_preference"
+        app:useSimpleSummaryProvider="true" />
+
+    <Preference
+        app:key="user"
+        app:title="@string/signature_title"
+        app:useSimpleSummaryProvider="true" />
+
+</PreferenceScreen>

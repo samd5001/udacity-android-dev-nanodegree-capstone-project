@@ -2,37 +2,38 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    android:baselineAligned="false"
-    android:divider="?android:attr/dividerHorizontal"
-    android:orientation="horizontal"
-    android:showDividers="middle"
-    tools:context=".view.issues.IssueListActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/issue_list"
-        android:name="com.sdunk.jiraestimator.view.issues.IssueListFragment"
-        android:layout_width="@dimen/item_width"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        app:layoutManager="LinearLayoutManager"
-        tools:context="com.sdunk.jiraestimator.view.issues.IssueListActivity"
-        tools:listitem="@layout/issue_list_item" />
+        android:baselineAligned="false"
+        android:divider="?android:attr/dividerHorizontal"
+        android:orientation="horizontal"
+        android:showDividers="middle"
+        tools:context=".view.issues.IssueListActivity">
 
-    <!--
-    This layout is a two-pane layout for the Issues master/detail flow.
-    -->
+        <FrameLayout
+            android:id="@+id/issue_detail_container"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="3" />
 
-    <FrameLayout
-        android:id="@+id/issue_detail_container"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="3" />
+        <!--
+        This layout is a two-pane layout for the Issues master/detail flow.
+        -->
 
-</LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/issue_list"
+            android:name="com.sdunk.jiraestimator.view.issues.IssueListFragment"
+            android:layout_width="@dimen/item_width"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            app:layoutManager="LinearLayoutManager"
+            tools:context="com.sdunk.jiraestimator.view.issues.IssueListActivity"
+            tools:listitem="@layout/issue_list_item" />
+
+    </LinearLayout>
 </layout>

@@ -2,25 +2,20 @@ package com.sdunk.jiraestimator.view.issues;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-
-import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
-import lombok.NoArgsConstructor;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.databinding.FragmentIssueDetailBinding;
-import com.sdunk.jiraestimator.db.issue.IssueDatabase;
 import com.sdunk.jiraestimator.model.JiraIssue;
 import com.sdunk.jiraestimator.view.EstimateSessionList;
 
 import org.jetbrains.annotations.NotNull;
+
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 public class IssueDetailFragment extends Fragment {

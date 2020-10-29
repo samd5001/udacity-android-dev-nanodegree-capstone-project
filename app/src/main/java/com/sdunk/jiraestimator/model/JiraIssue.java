@@ -4,10 +4,6 @@ package com.sdunk.jiraestimator.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -15,6 +11,17 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "issues")
 public class JiraIssue implements Parcelable {
 
+    public static final Creator<JiraIssue> CREATOR = new Creator<JiraIssue>() {
+        @Override
+        public JiraIssue createFromParcel(Parcel in) {
+            return new JiraIssue(in);
+        }
+
+        @Override
+        public JiraIssue[] newArray(int size) {
+            return new JiraIssue[size];
+        }
+    };
     @PrimaryKey
     @NonNull
     private String id;
@@ -24,6 +31,27 @@ public class JiraIssue implements Parcelable {
     private String description;
     private Double storyPoints;
 
+    protected JiraIssue(Parcel in) {
+        id = in.readString();
+        url = in.readString();
+        key = in.readString();
+        name = in.readString();
+        description = in.readString();
+        if (in.readByte() == 0) {
+            storyPoints = null;
+        } else {
+            storyPoints = in.readDouble();
+        }
+    }
+
+    public JiraIssue(@NonNull String id, String url, String key, String name, String description, Double storyPoints) {
+        this.id = id;
+        this.url = url;
+        this.key = key;
+        this.name = name;
+        this.description = description;
+        this.storyPoints = storyPoints;
+    }
 
     @NonNull
     public String getId() {
@@ -74,28 +102,6 @@ public class JiraIssue implements Parcelable {
         this.storyPoints = storyPoints;
     }
 
-    protected JiraIssue(Parcel in) {
-        id = in.readString();
-        url = in.readString();
-        key = in.readString();
-        name = in.readString();
-        description = in.readString();
-        if (in.readByte() == 0) {
-            storyPoints = null;
-        } else {
-            storyPoints = in.readDouble();
-        }
-    }
-
-    public JiraIssue(@NonNull String id, String url, String key, String name, String description, Double storyPoints) {
-        this.id = id;
-        this.url = url;
-        this.key = key;
-        this.name = name;
-        this.description = description;
-        this.storyPoints = storyPoints;
-    }
-
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
@@ -115,16 +121,4 @@ public class JiraIssue implements Parcelable {
     public int describeContents() {
         return 0;
     }
-
-    public static final Creator<JiraIssue> CREATOR = new Creator<JiraIssue>() {
-        @Override
-        public JiraIssue createFromParcel(Parcel in) {
-            return new JiraIssue(in);
-        }
-
-        @Override
-        public JiraIssue[] newArray(int size) {
-            return new JiraIssue[size];
-        }
-    };
 }

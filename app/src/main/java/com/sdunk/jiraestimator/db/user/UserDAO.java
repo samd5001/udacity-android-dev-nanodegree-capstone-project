@@ -3,7 +3,6 @@ package com.sdunk.jiraestimator.db.user;
 import com.sdunk.jiraestimator.model.User;
 
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
@@ -20,6 +19,6 @@ public interface UserDAO {
     @Update
     void updateUser(User user);
 
-    @Delete
-    void logoutUser(User user);
+    @Query("DELETE FROM users")
+    void logoutUser();
 }

@@ -19,7 +19,6 @@ public class JiraServiceFactory {
         logging.level(HttpLoggingInterceptor.Level.BODY);
 
 
-
         //TODO : remove logging interceptors as it is to be used for development purpose
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(300, TimeUnit.SECONDS)

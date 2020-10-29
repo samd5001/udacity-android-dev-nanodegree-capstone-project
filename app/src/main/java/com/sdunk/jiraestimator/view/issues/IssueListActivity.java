@@ -3,6 +3,8 @@ package com.sdunk.jiraestimator.view.issues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.adapters.GenericRVAdapter;
@@ -10,9 +12,11 @@ import com.sdunk.jiraestimator.api.APIUtils;
 import com.sdunk.jiraestimator.databinding.IssueListBinding;
 import com.sdunk.jiraestimator.databinding.IssueListItemBinding;
 import com.sdunk.jiraestimator.model.JiraIssue;
+import com.sdunk.jiraestimator.view.preferences.PreferencesActivity;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -20,15 +24,27 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 public class IssueListActivity extends AppCompatActivity {
 
+    private final ArrayList<JiraIssue> issues = new ArrayList<>();
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
     private boolean mTwoPane;
-
-    private final ArrayList<JiraIssue> issues = new ArrayList<>();
-
     private IssueListBinding listBinding;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.settings_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_preferences) {
+            startActivity(new Intent(this, PreferencesActivity.class));
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

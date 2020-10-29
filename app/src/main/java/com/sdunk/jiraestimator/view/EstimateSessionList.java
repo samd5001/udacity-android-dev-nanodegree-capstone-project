@@ -1,10 +1,10 @@
 package com.sdunk.jiraestimator.view;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 
 import com.sdunk.jiraestimator.R;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class EstimateSessionList extends AppCompatActivity {
 

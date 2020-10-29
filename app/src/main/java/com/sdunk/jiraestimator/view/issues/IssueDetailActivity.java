@@ -2,16 +2,13 @@ package com.sdunk.jiraestimator.view.issues;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.appcompat.widget.Toolbar;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.ActionBar;
-
 import android.view.MenuItem;
 
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.model.JiraIssue;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class IssueDetailActivity extends AppCompatActivity {
 

@@ -1,7 +1,6 @@
 package com.sdunk.jiraestimator.db.user;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.sdunk.jiraestimator.model.User;
 

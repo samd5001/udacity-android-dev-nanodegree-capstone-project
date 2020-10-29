@@ -16,7 +16,6 @@ import com.sdunk.jiraestimator.model.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Spliterator;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -28,61 +27,55 @@ public class APIUtils {
 
     public static void updateIssueCache(Context context) {
 
-        DBExecutor.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                User loggedInUser = UserDatabase.getInstance(context).userDao().getLoggedInUser();
-                if (loggedInUser != null && loggedInUser.getProjectKey() != null) {
-                    JiraService service = JiraServiceFactory.buildService(loggedInUser.getJiraUrl());
-                    if (service != null) {
-                        service.getFields(loggedInUser.getAuthHeader()).enqueue(new Callback<List<Field>>() {
-                            @Override
-                            public void onResponse(@NotNull Call<List<Field>> call, @NotNull Response<List<Field>> response) {
-                                List<Field> fields = response.body();
+        DBExecutor.getInstance().diskIO().execute(() -> {
+            User loggedInUser = UserDatabase.getInstance(context).userDao().getLoggedInUser();
+            if (loggedInUser != null && loggedInUser.getProjectKey() != null) {
+                JiraService service = JiraServiceFactory.buildService(loggedInUser.getJiraUrl());
+                if (service != null) {
+                    service.getFields(loggedInUser.getAuthHeader()).enqueue(new Callback<List<Field>>() {
+                        @Override
+                        public void onResponse(@NotNull Call<List<Field>> call, @NotNull Response<List<Field>> response) {
+                            List<Field> fields = response.body();
 
-                                if (fields != null) {
-                                    fields.stream().filter(field -> field.getName().equalsIgnoreCase("Story Points"))
-                                            .findFirst()
-                                            .ifPresent(storyPointField ->
-                                                    service.searchIssues(loggedInUser.getAuthHeader(), formatProjectJQL(loggedInUser.getProjectKey()), formatReturnFields(storyPointField.getId()))
-                                                            .enqueue(new Callback<JsonObject>() {
-                                        @Override
-                                        public void onResponse(@NotNull Call<JsonObject> call, @NotNull Response<JsonObject> response) {
-                                            JsonObject issuesResponse = response.body();
+                            if (fields != null) {
+                                fields.stream().filter(field -> field.getName().equalsIgnoreCase("Story Points"))
+                                        .findFirst()
+                                        .ifPresent(storyPointField ->
+                                                service.searchIssues(loggedInUser.getAuthHeader(), formatProjectJQL(loggedInUser.getProjectKey()), formatReturnFields(storyPointField.getId()))
+                                                        .enqueue(new Callback<JsonObject>() {
+                                                            @Override
+                                                            public void onResponse(@NotNull Call<JsonObject> call, @NotNull Response<JsonObject> response) {
+                                                                JsonObject issuesResponse = response.body();
 
-                                            JsonArray issuesResponseArray = issuesResponse.getAsJsonArray("issues");
+                                                                JsonArray issuesResponseArray = issuesResponse.getAsJsonArray("issues");
 
-                                            List<JiraIssue> issues = StreamSupport.stream(issuesResponseArray.spliterator(), false)
-                                                    .map(issueJson -> convertJsonObjectToPOJO(
-                                                            issueJson.getAsJsonObject(),
-                                                            storyPointField.getId()))
-                                                    .collect(Collectors.toList());
+                                                                List<JiraIssue> issues = StreamSupport.stream(issuesResponseArray.spliterator(), false)
+                                                                        .map(issueJson -> convertJsonObjectToPOJO(
+                                                                                issueJson.getAsJsonObject(),
+                                                                                storyPointField.getId()))
+                                                                        .collect(Collectors.toList());
 
-                                            DBExecutor.getInstance().diskIO().execute(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    IssueDAO issueDAO =  IssueDatabase.getInstance(context).issueDAO();
-                                                    issueDAO.clearIssues();
-                                                    issueDAO.insertIssues(issues);
-                                                }
-                                            });
-                                        }
+                                                                DBExecutor.getInstance().diskIO().execute(() -> {
+                                                                    IssueDAO issueDAO = IssueDatabase.getInstance(context).issueDAO();
+                                                                    issueDAO.clearIssues();
+                                                                    issueDAO.insertIssues(issues);
+                                                                });
+                                                            }
 
-                                        @Override
-                                        public void onFailure(@NotNull Call<JsonObject> call, @NotNull Throwable t) {
+                                                            @Override
+                                                            public void onFailure(@NotNull Call<JsonObject> call, @NotNull Throwable t) {
 
-                                        }
-                                    }));
-
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(@NotNull Call<List<Field>> call, @NotNull Throwable t) {
+                                                            }
+                                                        }));
 
                             }
-                        });
-                    }
+                        }
+
+                        @Override
+                        public void onFailure(@NotNull Call<List<Field>> call, @NotNull Throwable t) {
+
+                        }
+                    });
                 }
             }
         });
