@@ -7,15 +7,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/estimate_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/estimate"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0" />
-
         <TextView
             android:id="@+id/points_label"
             android:layout_width="174dp"
@@ -44,10 +35,19 @@
             android:layout_marginTop="100dp"
             android:maxHeight="400dp"
             android:scrollbars="vertical"
-            android:text="@{issue.description}"
+            android:text='@{issue.description != null &amp;&amp; !issue.description.trim().equals("") ? issue.description : "No description Set"}'
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/estimate_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/estimate"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

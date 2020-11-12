@@ -2,17 +2,29 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sdunk.jiraestimator">
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:name=".JiraEstimatorApplication"
-        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9768086208052401~4011946402" />
+        <activity android:name=".view.estimate.EstimateActivity"></activity>
         <activity
             android:name=".view.preferences.PreferencesActivity"
-            android:label="@string/title_activity_preferences_activiy"></activity>
+            android:label="@string/title_activity_preferences_activiy" />
         <activity
             android:name=".view.issues.IssueListActivity"
             android:label="@string/title_issue_list"
@@ -20,8 +32,7 @@
         <activity
             android:name=".view.issues.IssueDetailActivity"
             android:label="@string/title_issue_detail"
-            android:parentActivityName=".view.issues.IssueListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:parentActivityName=".view.issues.IssueListActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.sdunk.jiraestimator.view.issues.IssueListActivity" />
@@ -40,18 +51,7 @@
             android:name=".view.login.LoginActivity"
             android:label="@string/title_activity_login" />
 
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-9768086208052401~4011946402" />
+
     </application>
-
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
 </manifest>

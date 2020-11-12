@@ -19,13 +19,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import lombok.AllArgsConstructor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+@AllArgsConstructor
 public class APIUtils {
 
-    public static void updateIssueCache(Context context) {
+    private final Context context;
+
+    // This method was static taking a Context parameter but was causing a VerifyError when called
+    public void updateIssueCache() {
 
         DBExecutor.getInstance().diskIO().execute(() -> {
             User loggedInUser = UserDatabase.getInstance(context).userDao().getLoggedInUser();

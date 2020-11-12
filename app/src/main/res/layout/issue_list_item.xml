@@ -8,34 +8,35 @@
 
         <TextView
             android:id="@+id/key"
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:paddingBottom="16dp"
-            android:paddingEnd="20dp"
+            android:paddingEnd="8dp"
             android:paddingStart="24dp"
             android:paddingTop="16dp"
             android:text="@{issue.key}"
-            tools:text="PK" />
+            android:layout_weight="0"
+            tools:text="PK-1234" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="16dp"
-            android:paddingEnd="20dp"
-            android:paddingStart="24dp"
             android:paddingTop="16dp"
-            android:text="@{issue.description}"
-            tools:text="@string/project_name" />
+            android:text="@{issue.name}"
+            android:layout_weight="1"
+            tools:text="Issue Description" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:paddingBottom="16dp"
             android:paddingEnd="20dp"
             android:paddingStart="24dp"
             android:paddingTop="16dp"
-            android:text="@{issue.id}"
-            tools:text="@string/project_name" />
+            android:text="@{Double.toString(issue.storyPoints)}"
+            android:layout_weight="0"
+            tools:text="@string/point_placeholder" />
 
     </LinearLayout>
 

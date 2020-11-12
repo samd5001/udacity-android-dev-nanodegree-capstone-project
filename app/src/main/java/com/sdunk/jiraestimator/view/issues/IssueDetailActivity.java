@@ -10,13 +10,15 @@ import com.sdunk.jiraestimator.model.JiraIssue;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import static com.sdunk.jiraestimator.view.issues.IssueDetailFragment.ARG_ISSUE;
+
 public class IssueDetailActivity extends AppCompatActivity {
 
     private JiraIssue issue;
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(IssueDetailFragment.ARG_ISSUE, issue);
+        outState.putParcelable(ARG_ISSUE, issue);
         super.onSaveInstanceState(outState);
     }
 
@@ -26,24 +28,24 @@ public class IssueDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_issue_detail);
 
         if (savedInstanceState == null) {
-            issue = getIntent().getParcelableExtra(IssueDetailFragment.ARG_ISSUE);
+            issue = getIntent().getParcelableExtra(ARG_ISSUE);
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
-            Bundle arguments = new Bundle();
-            arguments.putParcelable(IssueDetailFragment.ARG_ISSUE, issue);
+            Bundle args = new Bundle();
+            args.putParcelable(ARG_ISSUE, issue);
             IssueDetailFragment fragment = new IssueDetailFragment();
-            fragment.setArguments(arguments);
+            fragment.setArguments(args);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.issue_detail_container, fragment)
                     .commit();
         } else {
-            issue = savedInstanceState.getParcelable(IssueDetailFragment.ARG_ISSUE);
+            issue = savedInstanceState.getParcelable(ARG_ISSUE);
         }
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(issue.getName());
+            actionBar.setTitle(issue.getKey());
         }
 
     }

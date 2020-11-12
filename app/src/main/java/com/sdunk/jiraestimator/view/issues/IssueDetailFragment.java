@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.databinding.FragmentIssueDetailBinding;
 import com.sdunk.jiraestimator.model.JiraIssue;
-import com.sdunk.jiraestimator.view.EstimateSessionList;
+import com.sdunk.jiraestimator.view.estimate.EstimateActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -55,7 +55,8 @@ public class IssueDetailFragment extends Fragment {
         }
 
         binding.estimateButton.setOnClickListener(view -> {
-            Intent intent = new Intent(getContext(), EstimateSessionList.class);
+            Intent intent = new Intent(getContext(), EstimateActivity.class);
+            intent.putExtra(ARG_ISSUE, issue.getKey());
             startActivity(intent);
         });
 

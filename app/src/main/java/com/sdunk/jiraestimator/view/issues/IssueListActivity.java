@@ -50,7 +50,7 @@ public class IssueListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        APIUtils.updateIssueCache(getApplicationContext());
+        new APIUtils(getApplicationContext()).updateIssueCache();
 
         com.sdunk.jiraestimator.databinding.ActivityIssueListBinding activityBinding = DataBindingUtil.setContentView(this, R.layout.activity_issue_list);
         listBinding = DataBindingUtil.getBinding(activityBinding.issueListLayout.issueList);
