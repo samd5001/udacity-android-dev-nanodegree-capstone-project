@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.adapters.GenericRVAdapter;
 import com.sdunk.jiraestimator.api.APIUtils;
+import com.sdunk.jiraestimator.databinding.ActivityIssueListBinding;
 import com.sdunk.jiraestimator.databinding.IssueListBinding;
 import com.sdunk.jiraestimator.databinding.IssueListItemBinding;
 import com.sdunk.jiraestimator.model.JiraIssue;
@@ -52,7 +53,7 @@ public class IssueListActivity extends AppCompatActivity {
 
         new APIUtils(getApplicationContext()).updateIssueCache();
 
-        com.sdunk.jiraestimator.databinding.ActivityIssueListBinding activityBinding = DataBindingUtil.setContentView(this, R.layout.activity_issue_list);
+        ActivityIssueListBinding activityBinding = DataBindingUtil.setContentView(this, R.layout.activity_issue_list);
         listBinding = DataBindingUtil.getBinding(activityBinding.issueListLayout.issueList);
 
         if (listBinding != null && listBinding.issueDetailContainer != null) {

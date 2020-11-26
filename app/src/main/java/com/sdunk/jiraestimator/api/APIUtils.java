@@ -29,6 +29,38 @@ public class APIUtils {
 
     private final Context context;
 
+    private static JiraIssue convertJsonObjectToPOJO(JsonObject issueJson, String storyPointField) {
+        JsonObject fieldsJson = issueJson.getAsJsonObject("fields");
+        JsonElement storyPoints = fieldsJson.get(storyPointField);
+        return new JiraIssue(issueJson.get("id").getAsString(),
+                issueJson.get("self").getAsString(),
+                issueJson.get("key").getAsString(),
+                fieldsJson.get("summary").getAsString(),
+                getDescriptionFromJson(fieldsJson),
+                storyPoints.isJsonNull() ? null : storyPoints.getAsDouble());
+    }
+
+    private static String getDescriptionFromJson(JsonObject issueJson) {
+        JsonElement descriptionJson = issueJson.get("description");
+
+        if (!descriptionJson.isJsonNull()) {
+            return StreamSupport.stream(descriptionJson.getAsJsonObject().getAsJsonArray("content").spliterator(), false)
+                    .map(paragraph -> StreamSupport
+                            .stream(paragraph.getAsJsonObject().get("content").getAsJsonArray().spliterator(), false)
+                            .map(paragraphContent -> paragraphContent.getAsJsonObject().get("text").getAsString().isEmpty() ? "\n" : paragraphContent.getAsJsonObject().get("text").getAsString() + "\n").collect(Collectors.joining()))
+                    .collect(Collectors.joining());
+        }
+        return null;
+    }
+
+    private static String formatProjectJQL(String projectKey) {
+        return "project=" + projectKey;
+    }
+
+    private static String formatReturnFields(String storyPointField) {
+        return "summary,description," + storyPointField;
+    }
+
     // This method was static taking a Context parameter but was causing a VerifyError when called
     public void updateIssueCache() {
 
@@ -84,37 +116,5 @@ public class APIUtils {
                 }
             }
         });
-    }
-
-    private static JiraIssue convertJsonObjectToPOJO(JsonObject issueJson, String storyPointField) {
-        JsonObject fieldsJson = issueJson.getAsJsonObject("fields");
-        JsonElement storyPoints = fieldsJson.get(storyPointField);
-        return new JiraIssue(issueJson.get("id").getAsString(),
-                issueJson.get("self").getAsString(),
-                issueJson.get("key").getAsString(),
-                fieldsJson.get("summary").getAsString(),
-                getDescriptionFromJson(fieldsJson),
-                storyPoints.isJsonNull() ? null : storyPoints.getAsDouble());
-    }
-
-    private static String getDescriptionFromJson(JsonObject issueJson) {
-        JsonElement descriptionJson = issueJson.get("description");
-
-        if (!descriptionJson.isJsonNull()) {
-            return StreamSupport.stream(descriptionJson.getAsJsonObject().getAsJsonArray("content").spliterator(), false)
-                    .map(paragraph -> StreamSupport
-                            .stream(paragraph.getAsJsonObject().get("content").getAsJsonArray().spliterator(), false)
-                            .map(paragraphContent -> paragraphContent.getAsJsonObject().get("text").getAsString().isEmpty() ? "\n" : paragraphContent.getAsJsonObject().get("text").getAsString() + "\n").collect(Collectors.joining()))
-                    .collect(Collectors.joining());
-        }
-        return null;
-    }
-
-    private static String formatProjectJQL(String projectKey) {
-        return "project=" + projectKey;
-    }
-
-    private static String formatReturnFields(String storyPointField) {
-        return "summary,description," + storyPointField;
     }
 }

@@ -1,66 +1,84 @@
 package com.sdunk.jiraestimator.view.estimate;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.sdunk.jiraestimator.R;
+import com.sdunk.jiraestimator.adapters.GenericRVAdapter;
+import com.sdunk.jiraestimator.databinding.FragmentEstimateVoteNineCardsBinding;
+import com.sdunk.jiraestimator.databinding.VoteCardItemBinding;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link EstimateVoteFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+import static com.sdunk.jiraestimator.view.estimate.EstimateSessionHostFragment.ARG_IS_HOST;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EstimateVoteFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    public static final String FRAGMENT_VOTE = "vote";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private boolean isHost;
 
-    public EstimateVoteFragment() {
-        // Required empty public constructor
-    }
+    private EstimateActivity activity;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment EstimateVoteFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static EstimateVoteFragment newInstance(String param1, String param2) {
+    private GenericRVAdapter<String, VoteCardItemBinding> gridAdapter;
+
+    private FragmentEstimateVoteNineCardsBinding binding;
+
+    public static EstimateVoteFragment newInstance(GenericRVAdapter<String, VoteCardItemBinding> gridAdapter) {
         EstimateVoteFragment fragment = new EstimateVoteFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
+
+        fragment.gridAdapter = gridAdapter;
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TransitionInflater inflater = TransitionInflater.from(requireContext());
+        setEnterTransition(inflater.inflateTransition(R.transition.slide_up));
+        setExitTransition(inflater.inflateTransition(R.transition.slide_up));
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            isHost = getArguments().getBoolean(ARG_IS_HOST);
+        }
+
+        activity = ((EstimateActivity) getActivity());
+        if (activity != null) {
+            activity.getBinding().estimateAppBar.setVisibility(GONE);
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public void onDestroy() {
+        super.onDestroy();
+        activity.getBinding().estimateAppBar.setVisibility(VISIBLE);
+    }
+
+    @Override
+    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_estimate_vote, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_estimate_vote_nine_cards, container, false);
+
+
+        binding.voteCardGrid.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+        binding.voteCardGrid.setAdapter(gridAdapter);
+
+        return binding.getRoot();
     }
 }
