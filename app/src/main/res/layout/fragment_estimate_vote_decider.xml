@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="voteOptionA"
+            type="String" />
+        <variable
+            name="voteOptionB"
+            type="String" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/optionA"
+            android:layout_width="150dp"
+            android:layout_height="180dp"
+            android:layout_marginStart="32dp"
+            android:background="@drawable/vote_card"
+            android:gravity="center"
+            android:text="@{voteOptionA}"
+            android:textSize="60sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/optionB"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="13" />
+
+        <TextView
+            android:id="@+id/optionB"
+            android:layout_width="150dp"
+            android:layout_height="180dp"
+            android:layout_marginEnd="32dp"
+            android:background="@drawable/vote_card"
+            android:gravity="center"
+            android:text="@{voteOptionB}"
+            android:textSize="60sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/optionA"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="13" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

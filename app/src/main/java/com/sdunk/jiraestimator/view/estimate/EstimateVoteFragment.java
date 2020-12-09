@@ -8,12 +8,10 @@ import android.view.ViewGroup;
 
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.adapters.GenericRVAdapter;
-import com.sdunk.jiraestimator.databinding.FragmentEstimateVoteNineCardsBinding;
+import com.sdunk.jiraestimator.databinding.FragmentEstimateVoteBinding;
 import com.sdunk.jiraestimator.databinding.VoteCardItemBinding;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
@@ -22,7 +20,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.sdunk.jiraestimator.view.estimate.EstimateSessionHostFragment.ARG_IS_HOST;
 
@@ -37,7 +34,7 @@ public class EstimateVoteFragment extends Fragment {
 
     private GenericRVAdapter<String, VoteCardItemBinding> gridAdapter;
 
-    private FragmentEstimateVoteNineCardsBinding binding;
+    private FragmentEstimateVoteBinding binding;
 
     public static EstimateVoteFragment newInstance(GenericRVAdapter<String, VoteCardItemBinding> gridAdapter) {
         EstimateVoteFragment fragment = new EstimateVoteFragment();
@@ -73,11 +70,12 @@ public class EstimateVoteFragment extends Fragment {
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_estimate_vote_nine_cards, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_estimate_vote, container, false);
 
 
         binding.voteCardGrid.setLayoutManager(new GridLayoutManager(getActivity(), 3));
         binding.voteCardGrid.setAdapter(gridAdapter);
+        binding.voteCardGrid.setHasFixedSize(true);
 
         return binding.getRoot();
     }

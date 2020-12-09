@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 
 import static android.view.View.INVISIBLE;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class EstimateSessionHostFragment extends Fragment {
 
     public static final String FRAGMENT_HOST = "host";
@@ -61,10 +61,7 @@ public class EstimateSessionHostFragment extends Fragment {
             isHost = getArguments().getBoolean(ARG_IS_HOST);
         }
 
-        activity = ((EstimateActivity) getActivity());
-
-
-
+        activity = ((EstimateActivity) requireActivity());
     }
 
     @Override

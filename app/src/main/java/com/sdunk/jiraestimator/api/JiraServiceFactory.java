@@ -20,13 +20,12 @@ public class JiraServiceFactory {
 
 
         //TODO : remove logging interceptors as it is to be used for development purpose
-        OkHttpClient client = new OkHttpClient.Builder()
+
+        return new OkHttpClient.Builder()
                 .connectTimeout(300, TimeUnit.SECONDS)
                 .readTimeout(300, TimeUnit.SECONDS).
                         addInterceptor(logging).
                         build();
-
-        return client;
     }
 
     public static JiraService buildService(String url) {

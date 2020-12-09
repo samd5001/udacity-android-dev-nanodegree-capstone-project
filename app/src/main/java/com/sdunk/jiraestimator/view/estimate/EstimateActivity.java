@@ -22,6 +22,7 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.adapters.GenericRVAdapter;
+import com.sdunk.jiraestimator.api.APIUtils;
 import com.sdunk.jiraestimator.databinding.ActivityEstimateBinding;
 import com.sdunk.jiraestimator.databinding.EstimateSessionItemBinding;
 import com.sdunk.jiraestimator.databinding.VoteCardItemBinding;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import androidx.annotation.NonNull;
@@ -46,6 +48,7 @@ import androidx.databinding.DataBindingUtil;
 import lombok.Getter;
 import timber.log.Timber;
 
+import static com.sdunk.jiraestimator.api.APIUtils.updateIssuePoints;
 import static com.sdunk.jiraestimator.view.issues.IssueDetailFragment.ARG_ISSUE;
 
 public class EstimateActivity extends AppCompatActivity {
@@ -60,6 +63,10 @@ public class EstimateActivity extends AppCompatActivity {
     private static final String STATE_USER_RESULTS = "state_user_results";
 
     private static final String STATE_USER_NAMES = "state_user_names";
+
+    private static final String START_VOTE = "START_VOTE";
+
+    private static final String ESTIMATE_SCORE = "ESTIMATE_SCORE";
 
     @Getter
     private  ActivityEstimateBinding binding;
@@ -86,25 +93,49 @@ public class EstimateActivity extends AppCompatActivity {
     private GenericRVAdapter<EstimateUser, EstimateSessionItemBinding> sessionListAdapter;
     private GenericRVAdapter<String, EstimateSessionItemBinding> hostListAdapter;
     private User user;
+    private String hostEndpoint;
+    private ConnectionsClient connectionsClient;
+
+    private boolean hasVoted = false;
+
+    @Getter
+    private boolean hosting = false;
 
     private final PayloadCallback userPayloadCallback =
             new PayloadCallback() {
                 @Override
                 public void onPayloadReceived(@NotNull String endpointId, @NotNull Payload payload) {
-                    String userName = new String(payload.asBytes(), StandardCharsets.UTF_8);
-
-                    if (userNames.contains(userName)) {
-                        userNames.remove(userName);
-                    } else {
-                        userNames.add(userName);
-                    }
-                    hostListAdapter.notifyDataSetChanged();
+                    handlePayloadFromHost(payload);
                 }
 
                 @Override
                 public void onPayloadTransferUpdate(@NotNull String endpointId, @NotNull PayloadTransferUpdate update) {
                 }
             };
+
+    private void handlePayloadFromHost(@NotNull Payload payload) {
+        String[] payloadString = new String(payload.asBytes(), StandardCharsets.UTF_8).split("%");
+
+        switch (payloadString[0]) {
+            case START_VOTE:
+                startVoting();
+                break;
+            case ESTIMATE_SCORE:
+                Toast.makeText(EstimateActivity.this, "Story point estimate: " + payloadString[1], Toast.LENGTH_LONG).show();
+                break;
+            default:
+                updateUsers(payloadString[0]);
+        }
+    }
+
+    private void updateUsers(String userName) {
+        if (userNames.contains(userName)) {
+            userNames.remove(userName);
+        } else {
+            userNames.add(userName);
+        }
+        hostListAdapter.notifyDataSetChanged();
+    }
 
     private final EndpointDiscoveryCallback endpointDiscoveryCallback =
             new EndpointDiscoveryCallback() {
@@ -126,7 +157,6 @@ public class EstimateActivity extends AppCompatActivity {
                     removeUserFromList(hosts, endpointId);
                 }
             };
-    private ConnectionsClient connectionsClient;
 
 
     private final PayloadCallback hostPayloadCallback =
@@ -135,7 +165,7 @@ public class EstimateActivity extends AppCompatActivity {
                 public void onPayloadReceived(@NotNull String endpointId, @NotNull Payload payload) {
                     userEstimates.replace(endpointId, payload.toString());
 
-                    estimate();
+                    checkEstimates();
                 }
 
                 @Override
@@ -143,9 +173,9 @@ public class EstimateActivity extends AppCompatActivity {
                 }
             };
 
-    private void estimate() {
+    private void checkEstimates() {
         if (userEstimates.entrySet().stream().allMatch(result -> result.getValue() != null && !result.getValue().isEmpty())) {
-            // DO ESTIMATION LOGIC
+            updateIssuePoints(user, issueKey, "8", this);
             connectionsClient.stopAdvertising();
             connectionsClient.stopAllEndpoints();
             finish();
@@ -175,8 +205,8 @@ public class EstimateActivity extends AppCompatActivity {
                             userNames.add(newUser.getEmail());
                             userEstimates.put(endpointId, null);
 
-                            sendExistingUsersPayloads(newUser);
-                            sendUserPayload(newUser);
+                            sendExistingUserInfoPayloadsToNewUser(newUser);
+                            sendNewUserInfoPayloadToExistingUsers(newUser);
 
                             hostListAdapter.notifyDataSetChanged();
                         }
@@ -188,10 +218,10 @@ public class EstimateActivity extends AppCompatActivity {
 
                 @Override
                 public void onDisconnected(@NotNull String endpointId) {
-                    Timber.i("onDisconnected: endpoint connected");
+                    Timber.i("onDisconnected: endpoint disconnected");
                     EstimateUser disconnectedUser = getUserForEndpointID(endpointId);
 
-                    sendUserPayload(disconnectedUser);
+                    sendNewUserInfoPayloadToExistingUsers(disconnectedUser);
                     userNames.remove(disconnectedUser.getEmail());
                     userEstimates.remove(endpointId);
                     removeUserFromList(users, endpointId);
@@ -210,13 +240,14 @@ public class EstimateActivity extends AppCompatActivity {
                     Timber.i("onConnectionInitiated: accepting connection");
                     connectionsClient.acceptConnection(endpointId, userPayloadCallback);
                     userNames.add(getHostName(connectionInfo.getEndpointName()));
+                    hostEndpoint = endpointId;
                 }
 
                 @Override
                 public void onConnectionResult(@NotNull String endpointId, ConnectionResolution result) {
                     if (result.getStatus().isSuccess()) {
                         Timber.i("onConnectionResult: connection successful");
-                        switchToSessionHostFragment(false);
+                        switchToSessionHostFragment();
                     } else {
                         Timber.i("onConnectionResult: connection failed");
                         userNames.clear();
@@ -237,11 +268,11 @@ public class EstimateActivity extends AppCompatActivity {
         setupSessionListFragment();
     }
 
-    private void sendExistingUsersPayloads(EstimateUser newUser) {
-        users.stream().filter(user -> !user.equals(newUser)).forEach(u -> sendUserPayload(newUser.getEndpointId(), u));
+    private void sendExistingUserInfoPayloadsToNewUser(EstimateUser newUser) {
+        users.stream().filter(user -> !user.equals(newUser)).forEach(u -> sendUserInfoPayloadToEndpoint(u, newUser.getEndpointId()));
     }
 
-    private void sendUserPayload(EstimateUser newUser) {
+    private void sendNewUserInfoPayloadToExistingUsers(EstimateUser newUser) {
         Payload newUserPayload = Payload.fromBytes(newUser.getEmail().getBytes());
         connectionsClient.sendPayload(
                 users
@@ -249,6 +280,27 @@ public class EstimateActivity extends AppCompatActivity {
                     .map(EstimateUser::getEndpointId)
                     .collect(Collectors.toList()),
                 newUserPayload
+        );
+    }
+
+    private void sendUserInfoPayloadToEndpoint(EstimateUser user, String userEndpoint) {
+        Payload payload = Payload.fromBytes(user.getEmail().getBytes());
+        connectionsClient.sendPayload(userEndpoint, payload);
+    }
+
+    private void sendVotePayload(String vote) {
+        Payload payload = Payload.fromBytes(vote.getBytes());
+        connectionsClient.sendPayload(hostEndpoint, payload);
+    }
+
+    private void startUserVoteSessions() {
+        Payload startVotePayload = Payload.fromBytes(START_VOTE.getBytes());
+        connectionsClient.sendPayload(
+                users
+                        .stream()
+                        .map(EstimateUser::getEndpointId)
+                        .collect(Collectors.toList()),
+                startVotePayload
         );
     }
 
@@ -260,11 +312,6 @@ public class EstimateActivity extends AppCompatActivity {
             }
         }
         return true;
-    }
-    
-    private void sendUserPayload(String endpointId, EstimateUser user) {
-        Payload payload = Payload.fromBytes(user.getEmail().getBytes());
-        connectionsClient.sendPayload(endpointId, payload);
     }
 
     private String getHostName(String endpointName) {
@@ -321,7 +368,7 @@ public class EstimateActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.estimateToolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         getUserFromDB();
     }
@@ -404,7 +451,8 @@ public class EstimateActivity extends AppCompatActivity {
 
     public void startHostingSession() {
         startAdvertising();
-        switchToSessionHostFragment(true);
+        hosting = true;
+        switchToSessionHostFragment();
     }
 
     private void setupSessionListFragment() {
@@ -448,7 +496,7 @@ public class EstimateActivity extends AppCompatActivity {
         userEstimates.clear();
     }
 
-    private void switchToSessionHostFragment(boolean isHost) {
+    private void switchToSessionHostFragment() {
 
         stopDiscovery();
 
@@ -470,7 +518,7 @@ public class EstimateActivity extends AppCompatActivity {
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.estimate_fragment_container, EstimateSessionHostFragment.newInstance(isHost, hostListAdapter))
+                .replace(R.id.estimate_fragment_container, EstimateSessionHostFragment.newInstance(hosting, hostListAdapter))
                 .addToBackStack("session_list")
                 .commit();
 
@@ -478,6 +526,11 @@ public class EstimateActivity extends AppCompatActivity {
     }
 
     public void startVoting() {
+
+        if (hosting) {
+            startUserVoteSessions();
+        }
+
         ArrayList<String> voteOptions = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.estimate_options)));
 
         GenericRVAdapter<String, VoteCardItemBinding> voteOptionAdapter = new GenericRVAdapter<String, VoteCardItemBinding>(this, voteOptions) {
@@ -493,7 +546,7 @@ public class EstimateActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(String vote, int position) {
-                //TODO: do vote
+                submitVote(vote);
             }
         };
 
@@ -506,8 +559,45 @@ public class EstimateActivity extends AppCompatActivity {
         currentFragment = EstimateSessionHostFragment.FRAGMENT_HOST;
     }
 
+    private void submitVote(String vote) {
+        if (hosting) {
+            userEstimates.put(user.getEmail() + 20, vote);
+            checkEstimates();
+        } else {
+            sendVotePayload(vote);
+        }
+
+        switchToChoiceFragment(vote);
+    }
+
+    public void resetVote() {
+        if (hosting) {
+            userEstimates.put(user.getEmail() + 20, null);
+        } else {
+            sendVotePayload("");
+        }
+
+        startVoting();
+
+    }
+
+    private void switchToChoiceFragment(String vote) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.estimate_fragment_container, EstimateVoteChoiceFragment.newInstance(vote))
+                .commit();
+    }
+
     public void handleHostSessionFragmentClose() {
         stopConnections();
         startDiscovery();
     }
+
+    public void handleSuccessfulVote(String vote) {
+        Toast.makeText(this,"FUCK YEAH", Toast.LENGTH_LONG).show();
+    };
+
+    public void handleVoteError(String vote) {
+        Toast.makeText(this,"FUCK NOOOOO", Toast.LENGTH_LONG).show();
+    };
 }

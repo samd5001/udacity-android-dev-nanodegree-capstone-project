@@ -20,12 +20,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class EstimateSessionListFragment extends Fragment {
 
     public static final String FRAGMENT_LIST = "list";
-
-    private FragmentEstimateSessionListBinding binding;
 
     private GenericRVAdapter<EstimateUser, EstimateSessionItemBinding> listAdapter;
 
@@ -47,12 +45,12 @@ public class EstimateSessionListFragment extends Fragment {
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_estimate_session_list, container, false);
+        com.sdunk.jiraestimator.databinding.FragmentEstimateSessionListBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_estimate_session_list, container, false);
 
         binding.sessionList.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.sessionList.setAdapter(listAdapter);
 
-        binding.hostButton.setOnClickListener(view -> ((EstimateActivity) getActivity()).startHostingSession());
+        binding.hostButton.setOnClickListener(view -> ((EstimateActivity) requireActivity()).startHostingSession());
         return binding.getRoot();
     }
 
