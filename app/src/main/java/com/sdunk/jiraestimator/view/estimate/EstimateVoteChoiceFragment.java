@@ -1,13 +1,6 @@
 package com.sdunk.jiraestimator.view.estimate;
 
 import android.os.Bundle;
-
-import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +10,10 @@ import com.sdunk.jiraestimator.databinding.FragmentEstimateVoteChoiceBinding;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EstimateVoteChoiceFragment extends Fragment {

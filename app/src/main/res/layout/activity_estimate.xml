@@ -10,6 +10,11 @@
         android:fitsSystemWindows="true"
         android:orientation="vertical">
 
+        <FrameLayout
+            android:id="@+id/estimate_fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/estimate_app_bar"
             android:layout_width="match_parent"
@@ -23,13 +28,6 @@
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
 
         </com.google.android.material.appbar.AppBarLayout>
-
-        <FrameLayout
-            android:id="@+id/estimate_fragment_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-
 
 
     </LinearLayout>

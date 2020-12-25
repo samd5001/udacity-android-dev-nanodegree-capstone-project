@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.adapters.GenericRVAdapter;
 import com.sdunk.jiraestimator.databinding.EstimateSessionItemBinding;
-import com.sdunk.jiraestimator.databinding.FragmentEstimateSessionListBinding;
 import com.sdunk.jiraestimator.model.EstimateUser;
 
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor

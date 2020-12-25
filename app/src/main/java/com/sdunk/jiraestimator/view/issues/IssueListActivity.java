@@ -78,7 +78,7 @@ public class IssueListActivity extends AppCompatActivity {
             public void onItemClick(JiraIssue issue, int position) {
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putParcelable(IssueDetailFragment.ARG_ISSUE, issue);
+                    arguments.putString(IssueDetailFragment.ARG_ISSUE, issue.getKey());
                     IssueDetailFragment fragment = new IssueDetailFragment();
                     fragment.setArguments(arguments);
                     IssueListActivity.this.getSupportFragmentManager().beginTransaction()
@@ -87,7 +87,7 @@ public class IssueListActivity extends AppCompatActivity {
                 } else {
                     Context context = IssueListActivity.this.getApplicationContext();
                     Intent intent = new Intent(context, IssueDetailActivity.class);
-                    intent.putExtra(IssueDetailFragment.ARG_ISSUE, issue);
+                    intent.putExtra(IssueDetailFragment.ARG_ISSUE, issue.getKey());
                     startActivity(intent);
                 }
             }

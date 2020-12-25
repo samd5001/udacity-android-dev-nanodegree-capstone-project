@@ -22,7 +22,6 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.adapters.GenericRVAdapter;
-import com.sdunk.jiraestimator.api.APIUtils;
 import com.sdunk.jiraestimator.databinding.ActivityEstimateBinding;
 import com.sdunk.jiraestimator.databinding.EstimateSessionItemBinding;
 import com.sdunk.jiraestimator.databinding.VoteCardItemBinding;
@@ -36,8 +35,10 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -68,10 +69,10 @@ public class EstimateActivity extends AppCompatActivity {
 
     private static final String ESTIMATE_SCORE = "ESTIMATE_SCORE";
 
-    @Getter
-    private  ActivityEstimateBinding binding;
+    private static final String START_DECIDER = "START_DECIDER";
 
     private static final Strategy NEARBY_STRATEGY = Strategy.P2P_STAR;
+
     private static final String[] REQUIRED_PERMISSIONS =
             new String[]{
                     Manifest.permission.BLUETOOTH,
@@ -82,90 +83,54 @@ public class EstimateActivity extends AppCompatActivity {
                     Manifest.permission.ACCESS_FINE_LOCATION,
             };
     private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 1;
+
     private boolean isAdvertising = false;
+
     private boolean isDiscovering = false;
+
     private String currentFragment;
+
     private String issueKey;
+
     private ArrayList<EstimateUser> hosts;
+
     private ArrayList<EstimateUser> users;
+
     private ArrayList<String> userNames;
+
     private HashMap<String, String> userEstimates;
+
     private GenericRVAdapter<EstimateUser, EstimateSessionItemBinding> sessionListAdapter;
+
     private GenericRVAdapter<String, EstimateSessionItemBinding> hostListAdapter;
+
     private User user;
-    private String hostEndpoint;
-    private ConnectionsClient connectionsClient;
 
-    private boolean hasVoted = false;
-
-    @Getter
-    private boolean hosting = false;
-
-    private final PayloadCallback userPayloadCallback =
-            new PayloadCallback() {
-                @Override
-                public void onPayloadReceived(@NotNull String endpointId, @NotNull Payload payload) {
-                    handlePayloadFromHost(payload);
-                }
-
-                @Override
-                public void onPayloadTransferUpdate(@NotNull String endpointId, @NotNull PayloadTransferUpdate update) {
-                }
-            };
-
-    private void handlePayloadFromHost(@NotNull Payload payload) {
-        String[] payloadString = new String(payload.asBytes(), StandardCharsets.UTF_8).split("%");
-
-        switch (payloadString[0]) {
-            case START_VOTE:
-                startVoting();
-                break;
-            case ESTIMATE_SCORE:
-                Toast.makeText(EstimateActivity.this, "Story point estimate: " + payloadString[1], Toast.LENGTH_LONG).show();
-                break;
-            default:
-                updateUsers(payloadString[0]);
-        }
-    }
-
-    private void updateUsers(String userName) {
-        if (userNames.contains(userName)) {
-            userNames.remove(userName);
-        } else {
-            userNames.add(userName);
-        }
-        hostListAdapter.notifyDataSetChanged();
-    }
-
+    /**
+     * EndpointDiscoveryCallback for updating the session list on the first fragment.
+     */
     private final EndpointDiscoveryCallback endpointDiscoveryCallback =
             new EndpointDiscoveryCallback() {
                 @Override
                 public void onEndpointFound(@NotNull String endpointId, @NotNull DiscoveredEndpointInfo info) {
-                    Timber.i("onEndpointFound: endpoint found, adding to host list");
-
-                    String hostName = getHostName(info.getEndpointName());
-                    if (hostName != null) {
-                        hosts.add(new EstimateUser(endpointId, hostName));
-                        sessionListAdapter.notifyDataSetChanged();
-                    }
-
+                    handleEndpointFound(endpointId, info);
                 }
 
                 @Override
                 public void onEndpointLost(@NotNull String endpointId) {
-                    Timber.i("onEndpointLost: endpoint lost, removing from endpoint list");
-                    removeUserFromList(hosts, endpointId);
+                    handleEndpointLost(endpointId);
                 }
             };
 
-
+    /**
+     * PayloadCallback for handling received payloads as a host.
+     */
     private final PayloadCallback hostPayloadCallback =
             new PayloadCallback() {
                 @Override
                 public void onPayloadReceived(@NotNull String endpointId, @NotNull Payload payload) {
-                    userEstimates.replace(endpointId, payload.toString());
-
-                    checkEstimates();
+                    updateUserEstimates(endpointId, payload);
+                    doEstimation();
                 }
 
                 @Override
@@ -173,15 +138,13 @@ public class EstimateActivity extends AppCompatActivity {
                 }
             };
 
-    private void checkEstimates() {
-        if (userEstimates.entrySet().stream().allMatch(result -> result.getValue() != null && !result.getValue().isEmpty())) {
-            updateIssuePoints(user, issueKey, "8", this);
-            connectionsClient.stopAdvertising();
-            connectionsClient.stopAllEndpoints();
-            finish();
-        }
-    }
+    private String hostEndpoint;
 
+    private ConnectionsClient connectionsClient;
+
+    /**
+     * ConnectionLifecycleCallback for handling connecting to a user device as a host
+     */
     private final ConnectionLifecycleCallback hostConnectionLifecycleCallback =
             new ConnectionLifecycleCallback() {
                 @Override
@@ -228,11 +191,32 @@ public class EstimateActivity extends AppCompatActivity {
                 }
             };
 
-    private EstimateUser getUserForEndpointID(@NotNull String endpointId) {
-        return users.stream().filter(user -> user.getEndpointId().equals(endpointId)).findFirst().orElse(null);
-    }
+    private boolean hasVoted = false;
 
+    @Getter
+    private ActivityEstimateBinding binding;
 
+    @Getter
+    private boolean hosting = false;
+
+    /**
+     * PayloadCallback for handling received payloads as a user
+     */
+    private final PayloadCallback userPayloadCallback =
+            new PayloadCallback() {
+                @Override
+                public void onPayloadReceived(@NotNull String endpointId, @NotNull Payload payload) {
+                    handlePayloadFromHost(payload);
+                }
+
+                @Override
+                public void onPayloadTransferUpdate(@NotNull String endpointId, @NotNull PayloadTransferUpdate update) {
+                }
+            };
+
+    /**
+     * ConnectionLifecycleCallback for handling connecting to a host devices
+     */
     private final ConnectionLifecycleCallback userLifecycleCallback =
             new ConnectionLifecycleCallback() {
                 @Override
@@ -262,37 +246,174 @@ public class EstimateActivity extends AppCompatActivity {
                 }
             };
 
+    /**
+     *
+     */
+    private static boolean hasPermissions(Context context, String... permissions) {
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(context, permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Updates the stored estimate for a user from a payload.
+     *
+     * @param endpointId Endpoint id for user.
+     * @param payload    Received payload message.
+     */
+    private void updateUserEstimates(@NotNull String endpointId, @NotNull Payload payload) {
+        userEstimates.replace(endpointId, payload.toString());
+    }
+
+    /**
+     * Parses a host payload and handles the payload based on the value
+     */
+    private void handlePayloadFromHost(@NotNull Payload payload) {
+        String[] payloadArray = new String(payload.asBytes(), StandardCharsets.UTF_8).split("%");
+
+        switch (payloadArray[0]) {
+            case START_VOTE:
+                startVoting();
+                break;
+            case START_DECIDER:
+                switchToDeciderFragment(payloadArray[1], payloadArray[2]);
+                break;
+            case ESTIMATE_SCORE:
+                Toast.makeText(EstimateActivity.this, "Story point estimate: " + payloadArray[1], Toast.LENGTH_LONG).show();
+                break;
+            default:
+                updateUsers(payloadArray[0]);
+        }
+    }
+
+    /**
+     * Adds or removes a user from the userName list
+     *
+     * @param userName
+     */
+    private void updateUsers(String userName) {
+        if (userNames.contains(userName)) {
+            userNames.remove(userName);
+        } else {
+            userNames.add(userName);
+        }
+        hostListAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Checks if all user votes have been collected and will either send the most common value to the API.
+     * <b/>
+     * If there is not a clear winner, the another round of voting will start.
+     */
+    private void doEstimation() {
+        if (userEstimates.entrySet().stream().allMatch(result -> result.getValue() != null && !result.getValue().isEmpty())) {
+
+            HashMap<String, Integer> choiceCountMap = new HashMap<>();
+            userEstimates.values().forEach(value -> {
+                Integer currentCount = choiceCountMap.get(value);
+                if (currentCount == null) {
+                    choiceCountMap.put(value, 0);
+                } else {
+                    choiceCountMap.put(value, currentCount + 1);
+                }
+            });
+
+            if (choiceCountMap.values().size() == 1) {
+                choiceCountMap
+                        .keySet()
+                        .stream()
+                        .findFirst()
+                        .ifPresent((choice) -> updateIssuePoints(user, issueKey, choice, this));
+            } else {
+                choiceCountMap
+                        .entrySet()
+                        .stream()
+                        .max(Entry.comparingByValue())
+                        .ifPresent((topChoice) -> {
+                            List<String> topVoteChoices = choiceCountMap.entrySet().stream().filter(entry -> entry.getValue().equals(topChoice.getValue())).map(Entry::getKey).collect(Collectors.toList());
+                            if (topVoteChoices.size() == 2) {
+                                userEstimates.replaceAll((key, value) -> null);
+                                topVoteChoices.sort(String::compareToIgnoreCase);
+                                sendDeciderOptionsPayload(topVoteChoices.get(0), topVoteChoices.get(1));
+                                switchToDeciderFragment(topVoteChoices.get(0), topVoteChoices.get(1));
+                            }
+                        });
+            }
+
+        }
+    }
+
+    private EstimateUser getUserForEndpointID(@NotNull String endpointId) {
+        return users.stream().filter(user -> user.getEndpointId().equals(endpointId)).findFirst().orElse(null);
+    }
+
+    /**
+     * Resets the activity to the first fragment and resets Nearby Connections
+     */
     private void resetActivity() {
         stopConnections();
         startDiscovery();
+        clearUserData();
         setupSessionListFragment();
     }
 
+    /**
+     * Sends details for every existing user to a new user.
+     *
+     * @param newUser User to send existing users to
+     */
     private void sendExistingUserInfoPayloadsToNewUser(EstimateUser newUser) {
         users.stream().filter(user -> !user.equals(newUser)).forEach(u -> sendUserInfoPayloadToEndpoint(u, newUser.getEndpointId()));
     }
 
+    /**
+     * Sends a new user email to all connected endpoints.
+     *
+     * @param newUser User to be sent
+     */
     private void sendNewUserInfoPayloadToExistingUsers(EstimateUser newUser) {
         Payload newUserPayload = Payload.fromBytes(newUser.getEmail().getBytes());
         connectionsClient.sendPayload(
                 users
-                    .stream()
-                    .map(EstimateUser::getEndpointId)
-                    .collect(Collectors.toList()),
+                        .stream()
+                        .map(EstimateUser::getEndpointId)
+                        .collect(Collectors.toList()),
                 newUserPayload
         );
     }
 
+    /**
+     *
+     */
     private void sendUserInfoPayloadToEndpoint(EstimateUser user, String userEndpoint) {
         Payload payload = Payload.fromBytes(user.getEmail().getBytes());
         connectionsClient.sendPayload(userEndpoint, payload);
     }
 
+    /**
+     *
+     */
     private void sendVotePayload(String vote) {
         Payload payload = Payload.fromBytes(vote.getBytes());
         connectionsClient.sendPayload(hostEndpoint, payload);
     }
 
+    /**
+     *
+     */
+    private void sendDeciderOptionsPayload(String optionA, String optionB) {
+        String payloadMessage = START_DECIDER + "%" + optionA + "%" + optionB;
+        Payload payload = Payload.fromBytes(payloadMessage.getBytes());
+        connectionsClient.sendPayload(hostEndpoint, payload);
+    }
+
+    /**
+     *
+     */
     private void startUserVoteSessions() {
         Payload startVotePayload = Payload.fromBytes(START_VOTE.getBytes());
         connectionsClient.sendPayload(
@@ -304,16 +425,9 @@ public class EstimateActivity extends AppCompatActivity {
         );
     }
 
-    private static boolean hasPermissions(Context context, String... permissions) {
-        for (String permission : permissions) {
-            if (ContextCompat.checkSelfPermission(context, permission)
-                    != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-        return true;
-    }
-
+    /**
+     *
+     */
     private String getHostName(String endpointName) {
         String[] userData = endpointName.split("%");
         if (userData.length == 2 && userData[0].equals(issueKey) && !userData[1].equalsIgnoreCase(user.getEmail())) {
@@ -323,10 +437,16 @@ public class EstimateActivity extends AppCompatActivity {
         return null;
     }
 
+    /**
+     *
+     */
     private void removeUserFromList(List<EstimateUser> users, @NotNull String endpointId) {
         users.removeIf((user) -> user.getEndpointId().equals(endpointId));
     }
 
+    /**
+     *
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putString(ARG_ISSUE, issueKey);
@@ -338,6 +458,9 @@ public class EstimateActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
+    /**
+     *
+     */
     @Override
     @SuppressWarnings("unchecked")
     protected void onCreate(Bundle savedInstanceState) {
@@ -373,6 +496,9 @@ public class EstimateActivity extends AppCompatActivity {
         getUserFromDB();
     }
 
+    /**
+     *
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -386,13 +512,9 @@ public class EstimateActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void getUserFromDB() {
-        DBExecutor.getInstance().diskIO().execute(() -> {
-            user = UserDatabase.getInstance(EstimateActivity.this).userDao().getLoggedInUser();
-            startDiscovery();
-        });
-    }
-
+    /**
+     *
+     */
     @Override
     protected void onStart() {
         super.onStart();
@@ -402,6 +524,9 @@ public class EstimateActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     *
+     */
     private void startDiscovery() {
 
         connectionsClient
@@ -413,6 +538,9 @@ public class EstimateActivity extends AppCompatActivity {
                 .addOnFailureListener((e) -> Timber.e(e, "Nearby Discovery failed to start"));
     }
 
+    /**
+     *
+     */
     private void startAdvertising() {
         users.clear();
         userEstimates.clear();
@@ -431,6 +559,9 @@ public class EstimateActivity extends AppCompatActivity {
 
     }
 
+    /**
+     *
+     */
     private void stopDiscovery() {
         if (isDiscovering) {
             connectionsClient.stopDiscovery();
@@ -438,23 +569,35 @@ public class EstimateActivity extends AppCompatActivity {
         hosts.clear();
     }
 
+    /**
+     *
+     */
     private void stopAdvertising() {
         if (isAdvertising) {
             connectionsClient.stopAdvertising();
         }
     }
 
+    /**
+     *
+     */
     @NotNull
     private String getHostEndpointName() {
         return issueKey + "%" + user.getEmail() + 20;
     }
 
+    /**
+     *
+     */
     public void startHostingSession() {
         startAdvertising();
         hosting = true;
         switchToSessionHostFragment();
     }
 
+    /**
+     *
+     */
     private void setupSessionListFragment() {
 
         sessionListAdapter = new GenericRVAdapter<EstimateUser, EstimateSessionItemBinding>(this, hosts) {
@@ -483,6 +626,9 @@ public class EstimateActivity extends AppCompatActivity {
         currentFragment = EstimateSessionListFragment.FRAGMENT_LIST;
     }
 
+    /**
+     *
+     */
     private void stopConnections() {
         stopDiscovery();
         stopAdvertising();
@@ -490,12 +636,18 @@ public class EstimateActivity extends AppCompatActivity {
 
     }
 
+    /**
+     *
+     */
     private void clearUserData() {
         userNames.clear();
         users.clear();
         userEstimates.clear();
     }
 
+    /**
+     *
+     */
     private void switchToSessionHostFragment() {
 
         stopDiscovery();
@@ -525,6 +677,9 @@ public class EstimateActivity extends AppCompatActivity {
         currentFragment = EstimateSessionHostFragment.FRAGMENT_HOST;
     }
 
+    /**
+     *
+     */
     public void startVoting() {
 
         if (hosting) {
@@ -559,10 +714,13 @@ public class EstimateActivity extends AppCompatActivity {
         currentFragment = EstimateSessionHostFragment.FRAGMENT_HOST;
     }
 
-    private void submitVote(String vote) {
+    /**
+     *
+     */
+    public void submitVote(String vote) {
         if (hosting) {
             userEstimates.put(user.getEmail() + 20, vote);
-            checkEstimates();
+            doEstimation();
         } else {
             sendVotePayload(vote);
         }
@@ -570,6 +728,9 @@ public class EstimateActivity extends AppCompatActivity {
         switchToChoiceFragment(vote);
     }
 
+    /**
+     *
+     */
     public void resetVote() {
         if (hosting) {
             userEstimates.put(user.getEmail() + 20, null);
@@ -581,6 +742,9 @@ public class EstimateActivity extends AppCompatActivity {
 
     }
 
+    /**
+     *
+     */
     private void switchToChoiceFragment(String vote) {
         getSupportFragmentManager()
                 .beginTransaction()
@@ -588,16 +752,70 @@ public class EstimateActivity extends AppCompatActivity {
                 .commit();
     }
 
+    /**
+     *
+     */
+    private void switchToDeciderFragment(String optionA, String optionB) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.estimate_fragment_container, EstimateVoteDeciderFragment.newInstance(optionA, optionB))
+                .commit();
+    }
+
+    /**
+     *
+     */
     public void handleHostSessionFragmentClose() {
         stopConnections();
         startDiscovery();
     }
 
+    /**
+     *
+     */
     public void handleSuccessfulVote(String vote) {
-        Toast.makeText(this,"FUCK YEAH", Toast.LENGTH_LONG).show();
-    };
+        Toast.makeText(this, "FUCK YEAH", Toast.LENGTH_LONG).show();
+    }
 
+    ;
+
+    /**
+     *
+     */
     public void handleVoteError(String vote) {
-        Toast.makeText(this,"FUCK NOOOOO", Toast.LENGTH_LONG).show();
-    };
+        Toast.makeText(this, "FUCK NOOOOO", Toast.LENGTH_LONG).show();
+    }
+
+    ;
+
+    /**
+     *
+     */
+    private void handleEndpointLost(@NotNull String endpointId) {
+        Timber.i("onEndpointLost: endpoint lost, removing from endpoint list");
+        removeUserFromList(hosts, endpointId);
+    }
+
+    /**
+     *
+     */
+    private void handleEndpointFound(@NotNull String endpointId, @NotNull DiscoveredEndpointInfo info) {
+        Timber.i("onEndpointFound: endpoint found, adding to host list");
+
+        String hostName = getHostName(info.getEndpointName());
+        if (hostName != null) {
+            hosts.add(new EstimateUser(endpointId, hostName));
+            sessionListAdapter.notifyDataSetChanged();
+        }
+    }
+
+    /**
+     *
+     */
+    private void getUserFromDB() {
+        DBExecutor.getInstance().diskIO().execute(() -> {
+            user = UserDatabase.getInstance(EstimateActivity.this).userDao().getLoggedInUser();
+            startDiscovery();
+        });
+    }
 }

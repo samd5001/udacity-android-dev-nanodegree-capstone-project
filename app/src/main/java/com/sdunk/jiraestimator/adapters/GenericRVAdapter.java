@@ -14,11 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public abstract class GenericRVAdapter<T, D> extends RecyclerView.Adapter<GenericRVAdapter<T, D>.ItemViewHolder> {
 
-    private Context context;
     private ArrayList<T> values;
 
     public GenericRVAdapter(Context context, ArrayList<T> values) {
-        this.context = context;
         this.values = values;
     }
 

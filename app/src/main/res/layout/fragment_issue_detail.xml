@@ -11,21 +11,11 @@
             android:id="@+id/estimate_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:text="@string/estimate"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
-
-        <TextView
-            android:id="@+id/points"
-            android:layout_width="50dp"
-            android:layout_height="16dp"
-            android:layout_marginStart="96dp"
-            android:layout_marginTop="28dp"
-            android:text="@{Double.toString(issue.storyPoints)}"
-            app:layout_constraintStart_toEndOf="@+id/points_label"
-            app:layout_constraintTop_toBottomOf="@+id/issue_description"
-            tools:text="@string/point_placeholder" />
 
         <TextView
             android:id="@+id/issue_description"
@@ -48,6 +38,18 @@
             android:text="@string/current_points"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/issue_description" />
+
+        <TextView
+            android:id="@+id/points"
+            android:layout_width="50dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="96dp"
+            android:layout_marginTop="28dp"
+            android:text="@{Double.toString(issue.storyPoints)}"
+            app:layout_constraintStart_toEndOf="@+id/points_label"
+            app:layout_constraintTop_toBottomOf="@+id/issue_description"
+            tools:text="@string/point_placeholder" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

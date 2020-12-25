@@ -36,7 +36,7 @@
             android:paddingEnd="20dp"
             android:paddingStart="24dp"
             android:paddingTop="16dp"
-            android:text="@{Double.toString(issue.storyPoints)}"
+            android:text='@{issue.storyPoints != null  ? Double.toString(issue.storyPoints) : ""}'
             tools:text="@string/point_placeholder" />
 
     </LinearLayout>

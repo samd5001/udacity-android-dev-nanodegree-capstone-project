@@ -1,7 +1,6 @@
 package com.sdunk.jiraestimator.api;
 
 import android.content.Context;
-import android.widget.Toast;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -64,6 +63,58 @@ public class APIUtils {
         return "summary,description," + storyPointField;
     }
 
+    public static void updateIssuePoints(User user, String key, String points, EstimateActivity activity) {
+        JiraService service = JiraServiceFactory.buildService(user.getJiraUrl());
+        if (service != null) {
+            service.getFields(user.getAuthHeader()).enqueue(new Callback<List<Field>>() {
+                @Override
+                public void onResponse(@NotNull Call<List<Field>> call, @NotNull Response<List<Field>> response) {
+                    List<Field> fields = response.body();
+
+                    if (fields != null) {
+                        fields.stream().filter(field -> field.getName().equalsIgnoreCase("Story Points"))
+                                .findFirst()
+                                .ifPresent(storyPointField -> {
+
+                                    JsonObject fieldsObject = new JsonObject();
+
+                                    if (points.equals("?")) {
+                                        fieldsObject.add(storyPointField.getId(), JsonNull.INSTANCE);
+                                    } else {
+                                        fieldsObject.addProperty(storyPointField.getId(), Double.valueOf(points));
+                                    }
+
+                                    JsonObject requestBody = new JsonObject();
+                                    requestBody.add("fields", fieldsObject);
+
+                                    service.updateStoryPoints(user.getAuthHeader(), key, requestBody).enqueue(new Callback<JsonObject>() {
+                                        @Override
+                                        public void onResponse(@NotNull Call<JsonObject> call, @NotNull Response<JsonObject> response) {
+                                            if (response.code() == 204) {
+                                                new APIUtils(activity).updateIssueCache();
+                                                activity.handleSuccessfulVote(points);
+                                            } else {
+                                                activity.handleVoteError(points);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(@NotNull Call<JsonObject> call, @NotNull Throwable t) {
+                                            activity.handleVoteError(points);
+                                        }
+                                    });
+                                });
+                    }
+                }
+
+                @Override
+                public void onFailure(@NotNull Call<List<Field>> call, @NotNull Throwable t) {
+
+                }
+            });
+        }
+    }
+
     // This method was static taking a Context parameter but was causing a VerifyError when called
     public void updateIssueCache() {
 
@@ -87,19 +138,21 @@ public class APIUtils {
                                                             public void onResponse(@NotNull Call<JsonObject> call, @NotNull Response<JsonObject> response) {
                                                                 JsonObject issuesResponse = response.body();
 
-                                                                JsonArray issuesResponseArray = issuesResponse.getAsJsonArray("issues");
+                                                                if (issuesResponse != null) {
+                                                                    JsonArray issuesResponseArray = issuesResponse.getAsJsonArray("issues");
 
-                                                                List<JiraIssue> issues = StreamSupport.stream(issuesResponseArray.spliterator(), false)
-                                                                        .map(issueJson -> convertJsonObjectToPOJO(
-                                                                                issueJson.getAsJsonObject(),
-                                                                                storyPointField.getId()))
-                                                                        .collect(Collectors.toList());
+                                                                    List<JiraIssue> issues = StreamSupport.stream(issuesResponseArray.spliterator(), false)
+                                                                            .map(issueJson -> convertJsonObjectToPOJO(
+                                                                                    issueJson.getAsJsonObject(),
+                                                                                    storyPointField.getId()))
+                                                                            .collect(Collectors.toList());
 
-                                                                DBExecutor.getInstance().diskIO().execute(() -> {
-                                                                    IssueDAO issueDAO = IssueDatabase.getInstance(context).issueDAO();
-                                                                    issueDAO.clearIssues();
-                                                                    issueDAO.insertIssues(issues);
-                                                                });
+                                                                    DBExecutor.getInstance().diskIO().execute(() -> {
+                                                                        IssueDAO issueDAO = IssueDatabase.getInstance(context).issueDAO();
+                                                                        issueDAO.clearIssues();
+                                                                        issueDAO.insertIssues(issues);
+                                                                    });
+                                                                }
                                                             }
 
                                                             @Override
@@ -119,61 +172,5 @@ public class APIUtils {
                 }
             }
         });
-    }
-
-    public static void updateIssuePoints(User user, String key, String points, EstimateActivity activity) {
-        JiraService service = JiraServiceFactory.buildService(user.getJiraUrl());
-        if (service != null) {
-            service.getFields(user.getAuthHeader()).enqueue(new Callback<List<Field>>() {
-                @Override
-                public void onResponse(@NotNull Call<List<Field>> call, @NotNull Response<List<Field>> response) {
-                    List<Field> fields = response.body();
-
-                    if (fields != null) {
-                        fields.stream().filter(field -> field.getName().equalsIgnoreCase("Story Points"))
-                                .findFirst()
-                                .ifPresent(storyPointField -> {
-
-                                    JsonObject setObject = new JsonObject();
-
-                                    JsonObject fieldsObject = new JsonObject();
-                                    if (points.equals("?")) {
-                                        setObject.addProperty("set", "");
-                                    } else {
-                                        setObject.addProperty("set", Double.valueOf(points));
-                                    }
-
-//                                    JsonArray pointsUpdates = new JsonArray();
-//                                    pointsUpdates.add(setObject);
-//
-//                                    JsonObject updateObject = new JsonObject();
-//                                    updateObject.add(storyPointField.getId(), pointsUpdates);
-
-                                    fieldsObject.addProperty(storyPointField.getId(), Double.valueOf(points));
-
-                                    JsonObject requestBody = new JsonObject();
-
-                                    requestBody.add("fields", fieldsObject);
-                                    service.updateStoryPoints(user.getAuthHeader(), key, requestBody).enqueue(new Callback<JsonObject>() {
-                                        @Override
-                                        public void onResponse(@NotNull Call<JsonObject> call, @NotNull Response<JsonObject> response) {
-                                            activity.handleSuccessfulVote(points);
-                                        }
-
-                                        @Override
-                                        public void onFailure(@NotNull Call<JsonObject> call, @NotNull Throwable t) {
-                                            activity.handleVoteError(points);
-                                        }
-                                    });
-                                });
-                    }
-                }
-
-                @Override
-                public void onFailure(@NotNull Call<List<Field>> call, @NotNull Throwable t) {
-
-                }
-            });
-        }
     }
 }

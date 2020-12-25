@@ -41,12 +41,14 @@
         <activity
             android:name=".view.login.LoginActivity"
             android:label="@string/title_activity_login" />
+
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-9768086208052401~4011946402" />
 
 
     </application>
+
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
