@@ -633,7 +633,6 @@ public class EstimateActivity extends AppCompatActivity {
         stopDiscovery();
         stopAdvertising();
         connectionsClient.stopAllEndpoints();
-
     }
 
     /**
@@ -739,7 +738,6 @@ public class EstimateActivity extends AppCompatActivity {
         }
 
         startVoting();
-
     }
 
     /**
@@ -774,19 +772,23 @@ public class EstimateActivity extends AppCompatActivity {
      *
      */
     public void handleSuccessfulVote(String vote) {
-        Toast.makeText(this, "FUCK YEAH", Toast.LENGTH_LONG).show();
+        String toastMessage = vote.equals("?") ? getString(R.string.undecided_vote_response) : getString(R.string.successful_vote_response, vote) ;
+        handleVoteFinish(toastMessage);
     }
-
-    ;
 
     /**
      *
      */
-    public void handleVoteError(String vote) {
-        Toast.makeText(this, "FUCK NOOOOO", Toast.LENGTH_LONG).show();
+    public void handleFailedVote(String vote) {
+        handleVoteFinish(getString(R.string.error_vote_response, vote));
     }
 
-    ;
+    private void handleVoteFinish(String toastMessage) {
+        Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
+        stopConnections();
+        finish();
+    }
+
 
     /**
      *

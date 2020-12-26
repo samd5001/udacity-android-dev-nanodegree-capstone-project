@@ -94,13 +94,13 @@ public class APIUtils {
                                                 new APIUtils(activity).updateIssueCache();
                                                 activity.handleSuccessfulVote(points);
                                             } else {
-                                                activity.handleVoteError(points);
+                                                activity.handleFailedVote(points);
                                             }
                                         }
 
                                         @Override
                                         public void onFailure(@NotNull Call<JsonObject> call, @NotNull Throwable t) {
-                                            activity.handleVoteError(points);
+                                            activity.handleFailedVote(points);
                                         }
                                     });
                                 });
@@ -109,7 +109,6 @@ public class APIUtils {
 
                 @Override
                 public void onFailure(@NotNull Call<List<Field>> call, @NotNull Throwable t) {
-
                 }
             });
         }
@@ -157,7 +156,6 @@ public class APIUtils {
 
                                                             @Override
                                                             public void onFailure(@NotNull Call<JsonObject> call, @NotNull Throwable t) {
-
                                                             }
                                                         }));
 
@@ -166,7 +164,6 @@ public class APIUtils {
 
                         @Override
                         public void onFailure(@NotNull Call<List<Field>> call, @NotNull Throwable t) {
-
                         }
                     });
                 }

@@ -20,10 +20,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String URL_ERROR = "Not a valid Jira Cloud URL";
-    private static final String EMAIL_ERROR = "Not a valid email";
-    private static final String TOKEN_ERROR = "Token / password must be entered";
-
     private LoginViewModel loginViewModel;
 
     private ActivityLoginBinding binding;
@@ -52,9 +48,9 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         loginViewModel.getUser().observe(this, loginUser -> {
-            binding.url.setError(loginUser.urlIsValid() ? null : URL_ERROR);
-            binding.email.setError(loginUser.emailIsValid() ? null : EMAIL_ERROR);
-            binding.token.setError(loginUser.tokenIsValid() ? null : TOKEN_ERROR);
+            binding.url.setError(loginUser.urlIsValid() ? null : getString(R.string.invalid_url));
+            binding.email.setError(loginUser.emailIsValid() ? null : getString(R.string.invalid_email));
+            binding.token.setError(loginUser.tokenIsValid() ? null : getString(R.string.invalid_token));
 
 
             if (!loginUser.urlIsValid()) {
@@ -69,7 +65,9 @@ public class LoginActivity extends AppCompatActivity {
                 DBExecutor.getInstance().diskIO().execute(LoginActivity.this::insertUserAndProject);
             } else {
                 binding.loading.setVisibility(View.GONE);
-                Toast.makeText(LoginActivity.this, R.string.login_api_error_message, Toast.LENGTH_LONG).show();
+                if (loginUser.userValid()) {
+                    Toast.makeText(LoginActivity.this, R.string.login_api_error_message, Toast.LENGTH_LONG).show();
+                }
 
             }
         });

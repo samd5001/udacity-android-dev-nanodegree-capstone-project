@@ -43,6 +43,10 @@ public class LoginUser {
         return token != null && !token.trim().isEmpty();
     }
 
+    public boolean userValid() {
+        return urlIsValid() && emailIsValid() && tokenIsValid();
+    }
+
     public String getAuthToken() {
         if (email != null && token != null) {
             return Credentials.basic(email.trim(), token.trim());

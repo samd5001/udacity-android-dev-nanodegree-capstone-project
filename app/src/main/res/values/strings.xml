@@ -8,38 +8,30 @@
     <string name="welcome">"Welcome !"</string>
     <string name="login_failed">"Login failed"</string>
     <string name="action_sign_in_short">Sign in</string>
-    <string name="invalid_url"></string>
-    <string name="invalid_email"></string>
-    <string name="invalid_token"></string>
-    <string name="login_api_error_message">An error occurred please check all entries are valid</string>
+    <string name="invalid_url">Not a valid Jira Cloud URL</string>
+    <string name="invalid_email">Not a valid email</string>
+    <string name="invalid_token">Token / password must be entered</string>
+    <string name="login_api_error_message">An error occurred please check all entries are valid and Jira Cloud is not down</string>
     <string name="project_name">Project Name</string>
     <string name="title_issue_list">Issues</string>
     <string name="title_issue_detail">Issue Detail</string>
     <string name="current_points">Current Points:</string>
     <string name="point_placeholder">13</string>
-    <string name="estimate">Estimate</string>
     <string name="menu_preference">Settings</string>
-    <string name="title_activity_preferences_activiy">PreferencesActiviy</string>
-
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
 
     <!-- Preferences -->
-    <string name="signature_title">Logout</string>
-    <string name="project_preference">Change Project</string>
+    <string name="logout_pref">Logout</string>
+    <string name="project_pref">Change Project</string>
 
     <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="host_session">Host Session</string>
     <string name="available_sessions">Available Sessions</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="session_participants_title">Participants</string>
     <string name="estimate_start_voting">Start Voting</string>
     <string name="error_host_disconnect">Error: Host disconnected</string>
+    <string name="undecided_vote_response">Not enough users have an estimate to proceed</string>
+    <string name="successful_vote_response">Story Points successfully estimated at %1$s points</string>
+    <string name="error_vote_response">An error occurred during estimation of %1$s points. Please try again</string>
+    <string name="estimate">Estimate</string>
+    ""
 </resources>

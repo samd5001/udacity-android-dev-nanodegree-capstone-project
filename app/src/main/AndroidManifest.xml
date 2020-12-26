@@ -15,7 +15,7 @@
 
         <activity
             android:name=".view.preferences.PreferencesActivity"
-            android:label="@string/title_activity_preferences_activiy" />
+            android:label="@string/menu_preference" />
         <activity
             android:name=".view.issues.IssueListActivity"
             android:label="@string/title_issue_list"

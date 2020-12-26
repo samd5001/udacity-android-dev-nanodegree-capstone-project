@@ -2,12 +2,12 @@
 
     <Preference
         app:key="project"
-        app:title="@string/project_preference"
+        app:title="@string/project_pref"
         app:useSimpleSummaryProvider="true" />
 
     <Preference
         app:key="user"
-        app:title="@string/signature_title"
+        app:title="@string/logout_pref"
         app:useSimpleSummaryProvider="true" />
 
 </PreferenceScreen>
