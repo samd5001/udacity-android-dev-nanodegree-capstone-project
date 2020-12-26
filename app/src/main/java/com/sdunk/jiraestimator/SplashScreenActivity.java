@@ -12,7 +12,7 @@ import com.sdunk.jiraestimator.view.project.ProjectSelectActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class InitialActivity extends AppCompatActivity {
+public class SplashScreenActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

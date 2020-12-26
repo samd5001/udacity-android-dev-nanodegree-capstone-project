@@ -20,13 +20,13 @@ import timber.log.Timber;
 @Getter
 public class LoginViewModel extends ViewModel {
 
-    private MutableLiveData<String> url = new MutableLiveData<>();
+    private final MutableLiveData<String> url = new MutableLiveData<>();
 
-    private MutableLiveData<String> email = new MutableLiveData<>();
+    private final MutableLiveData<String> email = new MutableLiveData<>();
 
-    private MutableLiveData<String> token = new MutableLiveData<>();
+    private final MutableLiveData<String> token = new MutableLiveData<>();
 
-    private MutableLiveData<LoginUser> user = new MutableLiveData<>();
+    private final MutableLiveData<LoginUser> user = new MutableLiveData<>();
 
     public void login() {
 

@@ -81,7 +81,7 @@ public class LoginActivity extends AppCompatActivity {
             User user = new User(loginUser.getUrl(), loginUser.getEmail(), loginUser.getToken());
             UserDatabase.getInstance(getApplicationContext()).userDao().loginUser(user);
             ProjectDatabase.getInstance(getApplicationContext()).projectDao().insertProjects(loginUser.getProjectList());
-
+            runOnUiThread(() -> Toast.makeText(getApplicationContext(), R.string.welcome, Toast.LENGTH_SHORT).show());
             startActivity(new Intent().setClass(this, ProjectSelectActivity.class));
             finish();
         }
