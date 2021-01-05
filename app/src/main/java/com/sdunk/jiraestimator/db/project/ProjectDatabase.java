@@ -2,7 +2,7 @@ package com.sdunk.jiraestimator.db.user;
 
 import android.content.Context;
 
-import com.sdunk.jiraestimator.db.project.ProjectDao;
+import com.sdunk.jiraestimator.db.project.ProjectDAO;
 import com.sdunk.jiraestimator.model.Project;
 
 import androidx.room.Database;
@@ -29,6 +29,6 @@ public abstract class ProjectDatabase extends RoomDatabase {
         return instance;
     }
 
-    public abstract ProjectDao projectDao();
+    public abstract ProjectDAO projectDao();
 
 }

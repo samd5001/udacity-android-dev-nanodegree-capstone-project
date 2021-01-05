@@ -15,9 +15,9 @@ public class LoginUser {
 
     private static final String ATLASSIAN_URL_SUFFIX = "atlassian.net";
 
-    private String url;
-    private String email;
-    private String token;
+    private final String url;
+    private final String email;
+    private final String token;
 
     @Setter
     private List<Project> projectList;

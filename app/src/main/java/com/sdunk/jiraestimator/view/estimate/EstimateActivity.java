@@ -7,6 +7,11 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -53,7 +58,6 @@ import static com.sdunk.jiraestimator.api.APIUtils.updateIssuePoints;
 import static com.sdunk.jiraestimator.view.issues.IssueDetailFragment.ARG_ISSUE;
 
 public class EstimateActivity extends AppCompatActivity {
-
 
     private static final String STATE_FRAGMENT = "state_fragment";
 
@@ -469,6 +473,9 @@ public class EstimateActivity extends AppCompatActivity {
         connectionsClient = Nearby.getConnectionsClient(this);
 
         if (savedInstanceState == null) {
+
+            loadAndShowInterstitialAd();
+
             if (getIntent().hasExtra(ARG_ISSUE)) {
                 issueKey = getIntent().getStringExtra(ARG_ISSUE);
             }
@@ -818,6 +825,25 @@ public class EstimateActivity extends AppCompatActivity {
         DBExecutor.getInstance().diskIO().execute(() -> {
             user = UserDatabase.getInstance(EstimateActivity.this).userDao().getLoggedInUser();
             startDiscovery();
+        });
+    }
+
+    /**
+     *
+     */
+    private void loadAndShowInterstitialAd() {
+        MobileAds.initialize(this);
+        RequestConfiguration requestConfiguration = new RequestConfiguration.Builder().setTestDeviceIds(Collections.singletonList("34C1F882D6CC2F3D16893974B7CEEC6C")).build();
+        MobileAds.setRequestConfiguration(requestConfiguration);
+
+        InterstitialAd interstitialAd = new InterstitialAd(this);
+        interstitialAd.setAdUnitId(getString(R.string.test_interstitial_ad_id));
+        interstitialAd.loadAd(new AdRequest.Builder().build());
+        interstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                interstitialAd.show();
+            }
         });
     }
 }

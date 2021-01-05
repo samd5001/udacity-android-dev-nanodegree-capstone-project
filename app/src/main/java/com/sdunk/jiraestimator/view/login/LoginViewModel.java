@@ -1,5 +1,6 @@
 package com.sdunk.jiraestimator.view.login;
 
+import com.sdunk.jiraestimator.api.APIUtils;
 import com.sdunk.jiraestimator.api.JiraService;
 import com.sdunk.jiraestimator.api.JiraServiceFactory;
 import com.sdunk.jiraestimator.model.GenericResponse;
@@ -35,31 +36,8 @@ public class LoginViewModel extends ViewModel {
 
         LoginUser loginUser = new LoginUser(urlString, email.getValue(), token.getValue());
 
-        JiraService service = JiraServiceFactory.buildService(loginUser.getUrl());
-
-        if (loginUser.urlIsValid() && loginUser.emailIsValid() && loginUser.tokenIsValid() && service != null) {
-            Call<GenericResponse<Project>> projectCall = service.getProjects(loginUser.getAuthToken());
-
-            projectCall.enqueue(new Callback<GenericResponse<Project>>() {
-                @Override
-                public void onResponse(@NotNull Call<GenericResponse<Project>> call, @NotNull Response<GenericResponse<Project>> response) {
-                    Timber.d("Login response received");
-
-                    if (response.body() != null) {
-                        Timber.d("Login successful");
-                        loginUser.setProjectList(response.body().getValues());
-                    } else {
-                        loginUser.setApiError(response.message());
-                    }
-                    user.setValue(loginUser);
-                }
-
-                @Override
-                public void onFailure(@NotNull Call<GenericResponse<Project>> call, @NotNull Throwable t) {
-                    loginUser.setApiError(t.getMessage());
-                    user.setValue(loginUser);
-                }
-            });
+        if (loginUser.urlIsValid() && loginUser.emailIsValid() && loginUser.tokenIsValid()) {
+            APIUtils.getUserProjects(loginUser, user);
         } else {
             user.setValue(loginUser);
         }

@@ -11,7 +11,7 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 @Dao
-public interface ProjectDao {
+public interface ProjectDAO {
 
     @Query("SELECT * FROM projects WHERE `key` = :key")
     Project loadByKey(String key);

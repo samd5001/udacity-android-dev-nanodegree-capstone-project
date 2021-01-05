@@ -22,22 +22,8 @@ public interface IssueDAO {
     LiveData<List<JiraIssue>> loadIssues();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertIssue(JiraIssue issue);
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertIssues(List<JiraIssue> issues);
-
-    @Update
-    void updateIssue(JiraIssue issue);
-
-    @Update
-    void updateIssues(List<JiraIssue> issues);
-
-    @Delete
-    void deleteIssue(JiraIssue issue);
 
     @Query("DELETE FROM issues")
     void clearIssues();
-
-
 }

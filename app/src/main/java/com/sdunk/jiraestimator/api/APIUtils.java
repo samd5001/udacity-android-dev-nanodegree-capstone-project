@@ -11,9 +11,12 @@ import com.sdunk.jiraestimator.db.issue.IssueDAO;
 import com.sdunk.jiraestimator.db.issue.IssueDatabase;
 import com.sdunk.jiraestimator.db.user.UserDatabase;
 import com.sdunk.jiraestimator.model.Field;
+import com.sdunk.jiraestimator.model.GenericResponse;
 import com.sdunk.jiraestimator.model.JiraIssue;
+import com.sdunk.jiraestimator.model.Project;
 import com.sdunk.jiraestimator.model.User;
 import com.sdunk.jiraestimator.view.estimate.EstimateActivity;
+import com.sdunk.jiraestimator.view.login.LoginUser;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -21,10 +24,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import androidx.lifecycle.MutableLiveData;
 import lombok.AllArgsConstructor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import timber.log.Timber;
 
 @AllArgsConstructor
 public class APIUtils {
@@ -169,5 +174,38 @@ public class APIUtils {
                 }
             }
         });
+    }
+
+    public static void getUserProjects(LoginUser loginUser, MutableLiveData<LoginUser> userMutableLiveData) {
+
+        JiraService service = JiraServiceFactory.buildService(loginUser.getUrl());
+        if (service != null) {
+            Call<GenericResponse<Project>> projectCall = service.getProjects(loginUser.getAuthToken());
+
+            projectCall.enqueue(new Callback<GenericResponse<Project>>() {
+                @Override
+                public void onResponse(@NotNull Call<GenericResponse<Project>> call, @NotNull Response<GenericResponse<Project>> response) {
+                    Timber.d("Login response received");
+
+                    if (response.body() != null) {
+                        Timber.d("Login successful");
+                        loginUser.setProjectList(response.body().getValues());
+                    } else {
+                        loginUser.setApiError(response.message());
+                    }
+                    if (userMutableLiveData != null) {
+                        userMutableLiveData.setValue(loginUser);
+                    }
+                }
+
+                @Override
+                public void onFailure(@NotNull Call<GenericResponse<Project>> call, @NotNull Throwable t) {
+                    loginUser.setApiError(t.getMessage());
+                    if (userMutableLiveData != null) {
+                        userMutableLiveData.setValue(loginUser);
+                    }
+                }
+            });
+        }
     }
 }
