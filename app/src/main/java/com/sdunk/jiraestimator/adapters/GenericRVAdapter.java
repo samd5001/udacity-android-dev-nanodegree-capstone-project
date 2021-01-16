@@ -1,6 +1,5 @@
 package com.sdunk.jiraestimator.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -16,7 +15,7 @@ public abstract class GenericRVAdapter<T, D> extends RecyclerView.Adapter<Generi
 
     private ArrayList<T> values;
 
-    public GenericRVAdapter(Context context, ArrayList<T> values) {
+    public GenericRVAdapter(ArrayList<T> values) {
         this.values = values;
     }
 
@@ -45,18 +44,10 @@ public abstract class GenericRVAdapter<T, D> extends RecyclerView.Adapter<Generi
         return values.size();
     }
 
-    public void addItems(ArrayList<T> arrayList) {
-        values = arrayList;
-        this.notifyDataSetChanged();
-    }
-
-    public T getItem(int position) {
-        return values.get(position);
-    }
-
-    class ItemViewHolder extends RecyclerView.ViewHolder {
+    public class ItemViewHolder extends RecyclerView.ViewHolder {
         protected D dataBinding;
 
+        @SuppressWarnings("unchecked")
         public ItemViewHolder(ViewDataBinding binding) {
             super(binding.getRoot());
             dataBinding = (D) binding;

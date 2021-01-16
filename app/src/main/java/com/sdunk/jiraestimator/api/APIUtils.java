@@ -36,6 +36,8 @@ public class APIUtils {
 
     private final Context context;
 
+    private static APIIdlingResource apiIdlingResource;
+
     private static JiraIssue convertJsonObjectToPOJO(JsonObject issueJson, String storyPointField) {
         JsonObject fieldsJson = issueJson.getAsJsonObject("fields");
         JsonElement storyPoints = fieldsJson.get(storyPointField);
@@ -68,12 +70,24 @@ public class APIUtils {
         return "summary,description," + storyPointField;
     }
 
+    /**
+     * Updates an issue with new story points using the Jira REST API.
+     *
+     * @param user Logged in user.
+     * @param key Key of issue to be updated,
+     * @param points New points to be set.
+     * @param activity {@link EstimateActivity} where the method is called from.
+     */
     public static void updateIssuePoints(User user, String key, String points, EstimateActivity activity) {
         JiraService service = JiraServiceFactory.buildService(user.getJiraUrl());
         if (service != null) {
+            Timber.d("Sending GET request to /rest/api/3/field");
+
             service.getFields(user.getAuthHeader()).enqueue(new Callback<List<Field>>() {
                 @Override
                 public void onResponse(@NotNull Call<List<Field>> call, @NotNull Response<List<Field>> response) {
+                    Timber.d("Response received from /rest/api/3/field");
+
                     List<Field> fields = response.body();
 
                     if (fields != null) {
@@ -92,20 +106,25 @@ public class APIUtils {
                                     JsonObject requestBody = new JsonObject();
                                     requestBody.add("fields", fieldsObject);
 
+                                    Timber.d("Sending PUT request to /rest/api/3/issue/%s", key);
                                     service.updateStoryPoints(user.getAuthHeader(), key, requestBody).enqueue(new Callback<JsonObject>() {
                                         @Override
                                         public void onResponse(@NotNull Call<JsonObject> call, @NotNull Response<JsonObject> response) {
                                             if (response.code() == 204) {
-                                                new APIUtils(activity).updateIssueCache();
+                                                Timber.d("Issue with key %s success response received", key);
                                                 activity.handleSuccessfulVote(points);
                                             } else {
+                                                Timber.d("Issue with key %s fail response received", key);
                                                 activity.handleFailedVote(points);
                                             }
+                                            setIdling();
                                         }
 
                                         @Override
                                         public void onFailure(@NotNull Call<JsonObject> call, @NotNull Throwable t) {
+                                            Timber.d("Error occurred when calling update on issue with key %s", key);
                                             activity.handleFailedVote(points);
+                                            setIdling();
                                         }
                                     });
                                 });
@@ -114,6 +133,9 @@ public class APIUtils {
 
                 @Override
                 public void onFailure(@NotNull Call<List<Field>> call, @NotNull Throwable t) {
+                    Timber.d("Request to /rest/api/3/field failed");
+                    activity.handleFailedVote(points);
+                    setIdling();
                 }
             });
         }
@@ -155,12 +177,14 @@ public class APIUtils {
                                                                         IssueDAO issueDAO = IssueDatabase.getInstance(context).issueDAO();
                                                                         issueDAO.clearIssues();
                                                                         issueDAO.insertIssues(issues);
+                                                                        setIdling();
                                                                     });
                                                                 }
                                                             }
 
                                                             @Override
                                                             public void onFailure(@NotNull Call<JsonObject> call, @NotNull Throwable t) {
+                                                                setIdling();
                                                             }
                                                         }));
 
@@ -169,6 +193,7 @@ public class APIUtils {
 
                         @Override
                         public void onFailure(@NotNull Call<List<Field>> call, @NotNull Throwable t) {
+                            setIdling();
                         }
                     });
                 }
@@ -196,6 +221,7 @@ public class APIUtils {
                     if (userMutableLiveData != null) {
                         userMutableLiveData.setValue(loginUser);
                     }
+                    setIdling();
                 }
 
                 @Override
@@ -204,8 +230,27 @@ public class APIUtils {
                     if (userMutableLiveData != null) {
                         userMutableLiveData.setValue(loginUser);
                     }
+                    setIdling();
                 }
             });
         }
+    }
+
+    /**
+     * Set idling resource to idle for tests.
+     */
+    private static void setIdling() {
+        if (apiIdlingResource == null) {
+            apiIdlingResource = new APIIdlingResource();
+        }
+        apiIdlingResource.setIdleState();
+    }
+
+    public static APIIdlingResource getApiIdlingResource() {
+        if (apiIdlingResource == null) {
+            apiIdlingResource = new APIIdlingResource();
+        }
+
+        return apiIdlingResource;
     }
 }

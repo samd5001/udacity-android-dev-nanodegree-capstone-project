@@ -21,20 +21,13 @@ import lombok.NoArgsConstructor;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.sdunk.jiraestimator.view.estimate.EstimateSessionHostFragment.ARG_IS_HOST;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EstimateVoteFragment extends Fragment {
 
-    public static final String FRAGMENT_VOTE = "vote";
-
-    private boolean isHost;
-
     private EstimateActivity activity;
 
     private GenericRVAdapter<String, VoteCardItemBinding> gridAdapter;
-
-    private FragmentEstimateVoteBinding binding;
 
     public static EstimateVoteFragment newInstance(GenericRVAdapter<String, VoteCardItemBinding> gridAdapter) {
         EstimateVoteFragment fragment = new EstimateVoteFragment();
@@ -49,11 +42,8 @@ public class EstimateVoteFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TransitionInflater inflater = TransitionInflater.from(requireContext());
-        setEnterTransition(inflater.inflateTransition(R.transition.slide_up));
-        setExitTransition(inflater.inflateTransition(R.transition.slide_up));
-        if (getArguments() != null) {
-            isHost = getArguments().getBoolean(ARG_IS_HOST);
-        }
+        setEnterTransition(inflater.inflateTransition(R.transition.explode));
+        setExitTransition(inflater.inflateTransition(R.transition.fade));
 
         activity = ((EstimateActivity) getActivity());
         if (activity != null) {
@@ -70,7 +60,7 @@ public class EstimateVoteFragment extends Fragment {
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_estimate_vote, container, false);
+        FragmentEstimateVoteBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_estimate_vote, container, false);
 
 
         binding.voteCardGrid.setLayoutManager(new GridLayoutManager(getActivity(), 3));

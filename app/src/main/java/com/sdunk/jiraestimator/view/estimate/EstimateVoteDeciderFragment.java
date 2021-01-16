@@ -1,6 +1,7 @@
 package com.sdunk.jiraestimator.view.estimate;
 
 import android.os.Bundle;
+import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,9 @@ public class EstimateVoteDeciderFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TransitionInflater inflater = TransitionInflater.from(requireContext());
+        setEnterTransition(inflater.inflateTransition(R.transition.fade));
+        setExitTransition(inflater.inflateTransition(R.transition.fade));
         if (getArguments() != null) {
             optionA = getArguments().getString(ARG_OPTIONA);
             optionB = getArguments().getString(ARG_OPTIONB);

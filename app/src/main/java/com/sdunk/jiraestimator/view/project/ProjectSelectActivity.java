@@ -32,7 +32,7 @@ public class ProjectSelectActivity extends AppCompatActivity {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_project_select);
         binding.projectList.setLayoutManager(new LinearLayoutManager(this));
-        binding.projectList.setAdapter(new GenericRVAdapter<Project, ProjectListItemBinding>(this, projects) {
+        binding.projectList.setAdapter(new GenericRVAdapter<Project, ProjectListItemBinding>(projects) {
             @Override
             public int getLayoutResId() {
                 return R.layout.project_list_item;

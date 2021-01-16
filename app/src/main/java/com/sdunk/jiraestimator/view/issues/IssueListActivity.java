@@ -63,7 +63,7 @@ public class IssueListActivity extends AppCompatActivity {
         setSupportActionBar(activityBinding.toolbar);
         activityBinding.toolbar.setTitle(getTitle());
         listBinding.issueList.setLayoutManager(new LinearLayoutManager(this));
-        listBinding.issueList.setAdapter(new GenericRVAdapter<JiraIssue, IssueListItemBinding>(this, issues) {
+        listBinding.issueList.setAdapter(new GenericRVAdapter<JiraIssue, IssueListItemBinding>(issues) {
             @Override
             public int getLayoutResId() {
                 return R.layout.issue_list_item;

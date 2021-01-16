@@ -54,8 +54,8 @@ public class EstimateSessionHostFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TransitionInflater inflater = TransitionInflater.from(requireContext());
-        setEnterTransition(inflater.inflateTransition(R.transition.slide_up));
-        setExitTransition(inflater.inflateTransition(R.transition.slide_up));
+        setExitTransition(inflater.inflateTransition(R.transition.explode));
+        setEnterTransition(inflater.inflateTransition(R.transition.explode));
         if (getArguments() != null) {
             isHost = getArguments().getBoolean(ARG_IS_HOST);
         }

@@ -37,7 +37,7 @@ public class EstimateSessionListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setExitTransition(TransitionInflater.from(requireContext())
-                .inflateTransition(R.transition.fade));
+                .inflateTransition(R.transition.explode));
     }
 
     @Override

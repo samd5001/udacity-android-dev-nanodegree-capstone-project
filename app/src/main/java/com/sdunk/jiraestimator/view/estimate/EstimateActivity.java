@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
@@ -27,6 +28,7 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.adapters.GenericRVAdapter;
+import com.sdunk.jiraestimator.api.APIUtils;
 import com.sdunk.jiraestimator.databinding.ActivityEstimateBinding;
 import com.sdunk.jiraestimator.databinding.EstimateSessionItemBinding;
 import com.sdunk.jiraestimator.databinding.VoteCardItemBinding;
@@ -43,6 +45,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -71,9 +74,11 @@ public class EstimateActivity extends AppCompatActivity {
 
     private static final String START_VOTE = "START_VOTE";
 
-    private static final String ESTIMATE_SCORE = "ESTIMATE_SCORE";
-
     private static final String START_DECIDER = "START_DECIDER";
+
+    private static final String VOTE_SUCCESS = "VOTE_SUCCESS";
+
+    private static final String VOTE_ERROR = "VOTE_ERROR";
 
     private static final Strategy NEARBY_STRATEGY = Strategy.P2P_STAR;
 
@@ -86,6 +91,7 @@ public class EstimateActivity extends AppCompatActivity {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION,
             };
+
     private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 1;
 
     private boolean isAdvertising = false;
@@ -197,6 +203,8 @@ public class EstimateActivity extends AppCompatActivity {
 
     private boolean hasVoted = false;
 
+    private boolean votingFinished = false;
+
     @Getter
     private ActivityEstimateBinding binding;
 
@@ -244,9 +252,11 @@ public class EstimateActivity extends AppCompatActivity {
 
                 @Override
                 public void onDisconnected(@NotNull String endpointId) {
-                    Timber.i("onDisconnected: endpoint disconnected");
-                    resetActivity();
-                    Toast.makeText(EstimateActivity.this, R.string.error_host_disconnect, Toast.LENGTH_LONG).show();
+                    if (!votingFinished) {
+                        Timber.i("onDisconnected: endpoint disconnected");
+                        resetActivity();
+                        Toast.makeText(EstimateActivity.this, R.string.error_host_disconnect, Toast.LENGTH_LONG).show();
+                    }
                 }
             };
 
@@ -270,7 +280,7 @@ public class EstimateActivity extends AppCompatActivity {
      * @param payload    Received payload message.
      */
     private void updateUserEstimates(@NotNull String endpointId, @NotNull Payload payload) {
-        userEstimates.replace(endpointId, payload.toString());
+        userEstimates.replace(endpointId, new String(payload.asBytes(), StandardCharsets.UTF_8));
     }
 
     /**
@@ -286,8 +296,11 @@ public class EstimateActivity extends AppCompatActivity {
             case START_DECIDER:
                 switchToDeciderFragment(payloadArray[1], payloadArray[2]);
                 break;
-            case ESTIMATE_SCORE:
-                Toast.makeText(EstimateActivity.this, "Story point estimate: " + payloadArray[1], Toast.LENGTH_LONG).show();
+            case VOTE_SUCCESS:
+                handleSuccessfulVote(payloadArray[1]);
+                break;
+            case VOTE_ERROR:
+                handleFailedVote(payloadArray[1]);
                 break;
             default:
                 updateUsers(payloadArray[0]);
@@ -296,8 +309,6 @@ public class EstimateActivity extends AppCompatActivity {
 
     /**
      * Adds or removes a user from the userName list
-     *
-     * @param userName
      */
     private void updateUsers(String userName) {
         if (userNames.contains(userName)) {
@@ -380,7 +391,11 @@ public class EstimateActivity extends AppCompatActivity {
      * @param newUser User to be sent
      */
     private void sendNewUserInfoPayloadToExistingUsers(EstimateUser newUser) {
-        Payload newUserPayload = Payload.fromBytes(newUser.getEmail().getBytes());
+        sendPayloadToAllUsers(newUser.getEmail());
+    }
+
+    private void sendPayloadToAllUsers(String email) {
+        Payload newUserPayload = Payload.fromBytes(email.getBytes());
         connectionsClient.sendPayload(
                 users
                         .stream()
@@ -410,24 +425,23 @@ public class EstimateActivity extends AppCompatActivity {
      *
      */
     private void sendDeciderOptionsPayload(String optionA, String optionB) {
-        String payloadMessage = START_DECIDER + "%" + optionA + "%" + optionB;
-        Payload payload = Payload.fromBytes(payloadMessage.getBytes());
-        connectionsClient.sendPayload(hostEndpoint, payload);
+        sendPayloadToAllUsers(START_DECIDER + "%" + optionA + "%" + optionB);
     }
 
     /**
      *
      */
     private void startUserVoteSessions() {
-        Payload startVotePayload = Payload.fromBytes(START_VOTE.getBytes());
-        connectionsClient.sendPayload(
-                users
-                        .stream()
-                        .map(EstimateUser::getEndpointId)
-                        .collect(Collectors.toList()),
-                startVotePayload
-        );
+        sendPayloadToAllUsers(START_VOTE);
     }
+
+    /**
+     *
+     */
+    private void sendVoteResultPayloads(String voteStatus, String voteValue) {
+        sendPayloadToAllUsers(voteStatus + "%" + voteValue);
+    }
+
 
     /**
      *
@@ -531,6 +545,12 @@ public class EstimateActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopConnections();
+    }
+
     /**
      *
      */
@@ -607,7 +627,7 @@ public class EstimateActivity extends AppCompatActivity {
      */
     private void setupSessionListFragment() {
 
-        sessionListAdapter = new GenericRVAdapter<EstimateUser, EstimateSessionItemBinding>(this, hosts) {
+        sessionListAdapter = new GenericRVAdapter<EstimateUser, EstimateSessionItemBinding>(hosts) {
             @Override
             public int getLayoutResId() {
                 return R.layout.estimate_session_item;
@@ -658,7 +678,7 @@ public class EstimateActivity extends AppCompatActivity {
 
         stopDiscovery();
 
-        hostListAdapter = new GenericRVAdapter<String, EstimateSessionItemBinding>(this, userNames) {
+        hostListAdapter = new GenericRVAdapter<String, EstimateSessionItemBinding>(userNames) {
             @Override
             public int getLayoutResId() {
                 return R.layout.estimate_session_item;
@@ -694,7 +714,8 @@ public class EstimateActivity extends AppCompatActivity {
 
         ArrayList<String> voteOptions = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.estimate_options)));
 
-        GenericRVAdapter<String, VoteCardItemBinding> voteOptionAdapter = new GenericRVAdapter<String, VoteCardItemBinding>(this, voteOptions) {
+        GenericRVAdapter<String, VoteCardItemBinding> voteOptionAdapter = new GenericRVAdapter<String, VoteCardItemBinding>(voteOptions) {
+
             @Override
             public int getLayoutResId() {
                 return R.layout.vote_card_item;
@@ -779,6 +800,10 @@ public class EstimateActivity extends AppCompatActivity {
      *
      */
     public void handleSuccessfulVote(String vote) {
+        if (isHosting()) {
+            sendVoteResultPayloads(VOTE_SUCCESS, vote);
+        }
+        new APIUtils(this).updateIssueCache();
         String toastMessage = vote.equals("?") ? getString(R.string.undecided_vote_response) : getString(R.string.successful_vote_response, vote) ;
         handleVoteFinish(toastMessage);
     }
@@ -787,10 +812,14 @@ public class EstimateActivity extends AppCompatActivity {
      *
      */
     public void handleFailedVote(String vote) {
+        if (isHosting()) {
+            sendVoteResultPayloads(VOTE_ERROR, vote);
+        }
         handleVoteFinish(getString(R.string.error_vote_response, vote));
     }
 
     private void handleVoteFinish(String toastMessage) {
+        votingFinished = true;
         Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
         stopConnections();
         finish();
