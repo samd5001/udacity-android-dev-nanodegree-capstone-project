@@ -51,5 +51,4 @@ public class EstimateSessionListFragment extends Fragment {
         binding.hostButton.setOnClickListener(view -> ((EstimateActivity) requireActivity()).startHostingSession());
         return binding.getRoot();
     }
-
 }

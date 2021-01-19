@@ -1,29 +1,27 @@
 <resources>
     <string name="app_name">Jira Estimator</string>
     <string name="title_activity_login">Jira Estimator - Login</string>
+
+    <!-- Login Activity-->
     <string name="prompt_url">Jira URL</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Token</string>
     <string name="action_sign_in">Sign in</string>
     <string name="welcome">"Welcome !"</string>
-    <string name="login_failed">"Login failed"</string>
-    <string name="action_sign_in_short">Sign in</string>
     <string name="invalid_url">Not a valid Jira Cloud URL</string>
     <string name="invalid_email">Not a valid email</string>
     <string name="invalid_token">Token / password must be entered</string>
     <string name="login_api_error_message">An error occurred please check all entries are valid and Jira Cloud is not down</string>
+
+    <!-- Project Activity -->
     <string name="project_name">Project Name</string>
+
+    <!-- Issue Activities -->
     <string name="title_issue_list">Issues</string>
     <string name="title_issue_detail">Issue Detail</string>
-    <string name="current_points">Current Points:</string>
+    <string name="points_label">Current Points:</string>
     <string name="point_placeholder">13</string>
-    <string name="menu_preference">Settings</string>
 
-    <!-- Preferences -->
-    <string name="logout_pref">Logout</string>
-    <string name="project_pref">Change Project</string>
-
-    <!-- Sync Preferences -->
     <string name="host_session">Host Session</string>
     <string name="available_sessions">Available Sessions</string>
     <string name="session_participants_title">Participants</string>
@@ -35,6 +33,16 @@
     <string name="estimate">Estimate</string>
     <string name="unable_to_login">Unable to connect, please login again</string>
     <string name="project_not_found">Project not found, please select a new project</string>
+    <string name="user_connected_message">User %1$s connected</string>
+
+    <string name="widget_empty_text">No Issue selected</string>
+
+    <!-- Preferences -->
+    <string name="menu_preference">Settings</string>
+    <string name="logout_pref">Logout</string>
+    <string name="project_pref">Change Project</string>
+
     <string name="test_interstitial_ad_id">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="description_placeholder">Story Description</string>
 
 </resources>

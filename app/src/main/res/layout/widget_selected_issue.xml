@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/background_light"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/widget_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary">
+        <TextView
+            android:id="@+id/widget_story_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:textSize="24sp"
+            android:textStyle="bold|italic"
+            android:textColor="@android:color/white"
+            android:visibility="gone"
+            tools:text="Story Name"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/widget_text_container"
+        android:layout_marginTop="18dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <TextView
+            android:id="@+id/widget_story_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/widget_text_margin"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            tools:text="@string/description_placeholder"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/widget_story_point_container"
+        android:layout_marginTop="18dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:visibility="gone">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/widget_text_margin"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:text="@string/points_label"/>
+        <TextView
+            android:id="@+id/widget_story_points"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/widget_text_margin"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            tools:text="@string/point_placeholder"/>
+    </LinearLayout>
+
+
+
+
+</LinearLayout>

@@ -54,6 +54,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import lombok.Getter;
 import timber.log.Timber;
 
@@ -130,6 +132,8 @@ public class EstimateActivity extends AppCompatActivity {
                 public void onEndpointLost(@NotNull String endpointId) {
                     handleEndpointLost(endpointId);
                 }
+
+
             };
 
     /**
@@ -182,6 +186,7 @@ public class EstimateActivity extends AppCompatActivity {
                             sendNewUserInfoPayloadToExistingUsers(newUser);
 
                             hostListAdapter.notifyDataSetChanged();
+                            Toast.makeText(getBaseContext(), getString(R.string.user_connected_message, newUser.getEmail()), Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         removeUserFromList(users, endpointId);
@@ -198,11 +203,10 @@ public class EstimateActivity extends AppCompatActivity {
                     userNames.remove(disconnectedUser.getEmail());
                     userEstimates.remove(endpointId);
                     removeUserFromList(users, endpointId);
+                    Toast.makeText(getBaseContext(), getString(R.string.user_connected_message, disconnectedUser.getEmail()), Toast.LENGTH_SHORT).show();
                 }
             };
-
-    private boolean hasVoted = false;
-
+    
     private boolean votingFinished = false;
 
     @Getter
@@ -246,7 +250,7 @@ public class EstimateActivity extends AppCompatActivity {
                         switchToSessionHostFragment();
                     } else {
                         Timber.i("onConnectionResult: connection failed");
-                        userNames.clear();
+                        clearUserData();
                     }
                 }
 
@@ -291,7 +295,7 @@ public class EstimateActivity extends AppCompatActivity {
 
         switch (payloadArray[0]) {
             case START_VOTE:
-                startVoting();
+                startVoting(false);
                 break;
             case START_DECIDER:
                 switchToDeciderFragment(payloadArray[1], payloadArray[2]);
@@ -523,14 +527,33 @@ public class EstimateActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
-                getSupportFragmentManager().popBackStack();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            if (fragmentManager.getBackStackEntryCount() > 0) {
+                handleBackPress(fragmentManager);
             } else {
                 finish();
             }
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if (fragmentManager.getBackStackEntryCount() > 0) {
+            handleBackPress(fragmentManager);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private void handleBackPress(FragmentManager fragmentManager) {
+        fragmentManager.popBackStack();
+        if (fragmentManager.getBackStackEntryCount() == 1) {
+            resetNearbyConnections();
+        }
     }
 
     /**
@@ -569,9 +592,7 @@ public class EstimateActivity extends AppCompatActivity {
      *
      */
     private void startAdvertising() {
-        users.clear();
-        userEstimates.clear();
-        userNames.clear();
+        clearUserData();
 
         userEstimates.put(user.getEmail() + 20, null);
         userNames.add(user.getEmail() + 20);
@@ -592,6 +613,7 @@ public class EstimateActivity extends AppCompatActivity {
     private void stopDiscovery() {
         if (isDiscovering) {
             connectionsClient.stopDiscovery();
+            isDiscovering = false;
         }
         hosts.clear();
     }
@@ -602,6 +624,7 @@ public class EstimateActivity extends AppCompatActivity {
     private void stopAdvertising() {
         if (isAdvertising) {
             connectionsClient.stopAdvertising();
+            isAdvertising = false;
         }
     }
 
@@ -644,10 +667,9 @@ public class EstimateActivity extends AppCompatActivity {
             }
         };
 
-        EstimateSessionListFragment fragment = EstimateSessionListFragment.newInstance(sessionListAdapter);
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.estimate_fragment_container, fragment)
+                .replace(R.id.estimate_fragment_container, EstimateSessionListFragment.newInstance(sessionListAdapter))
                 .commit();
 
         currentFragment = EstimateSessionListFragment.FRAGMENT_LIST;
@@ -660,6 +682,7 @@ public class EstimateActivity extends AppCompatActivity {
         stopDiscovery();
         stopAdvertising();
         connectionsClient.stopAllEndpoints();
+        clearUserData();
     }
 
     /**
@@ -706,9 +729,9 @@ public class EstimateActivity extends AppCompatActivity {
     /**
      *
      */
-    public void startVoting() {
+    public void startVoting(boolean sendStartVotePayload) {
 
-        if (hosting) {
+        if (sendStartVotePayload) {
             startUserVoteSessions();
         }
 
@@ -732,10 +755,12 @@ public class EstimateActivity extends AppCompatActivity {
             }
         };
 
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.popBackStack();
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.estimate_fragment_container, EstimateVoteFragment.newInstance(voteOptionAdapter))
-                .addToBackStack("session_host")
+                .addToBackStack("session_list")
                 .commit();
 
         currentFragment = EstimateSessionHostFragment.FRAGMENT_HOST;
@@ -759,13 +784,16 @@ public class EstimateActivity extends AppCompatActivity {
      *
      */
     public void resetVote() {
-        if (hosting) {
-            userEstimates.put(user.getEmail() + 20, null);
-        } else {
+        boolean sendStartVote = false;
+        if (!hosting) {
             sendVotePayload("");
+        } else {
+            if (!userEstimates.containsKey(user.getEmail() + 20)) {
+                sendStartVote = true;
+            }
+            userEstimates.put(user.getEmail() + 20, null);
         }
-
-        startVoting();
+        startVoting(sendStartVote);
     }
 
     /**
@@ -791,7 +819,8 @@ public class EstimateActivity extends AppCompatActivity {
     /**
      *
      */
-    public void handleHostSessionFragmentClose() {
+    public void resetNearbyConnections() {
+        clearUserData();
         stopConnections();
         startDiscovery();
     }
@@ -832,6 +861,7 @@ public class EstimateActivity extends AppCompatActivity {
     private void handleEndpointLost(@NotNull String endpointId) {
         Timber.i("onEndpointLost: endpoint lost, removing from endpoint list");
         removeUserFromList(hosts, endpointId);
+        sessionListAdapter.notifyDataSetChanged();
     }
 
     /**

@@ -28,8 +28,6 @@ public class EstimateSessionHostFragment extends Fragment {
 
     public static final String ARG_IS_HOST = "is_host_arg";
 
-    private EstimateActivity activity;
-
     @Getter
     private FragmentEstimateSessionListBinding binding;
 
@@ -59,8 +57,6 @@ public class EstimateSessionHostFragment extends Fragment {
         if (getArguments() != null) {
             isHost = getArguments().getBoolean(ARG_IS_HOST);
         }
-
-        activity = ((EstimateActivity) requireActivity());
     }
 
     @Override
@@ -74,19 +70,11 @@ public class EstimateSessionHostFragment extends Fragment {
 
         if (isHost) {
             binding.hostButton.setText(R.string.estimate_start_voting);
-            binding.hostButton.setOnClickListener((View view) -> activity.startVoting());
+            binding.hostButton.setOnClickListener((View view) -> ((EstimateActivity) requireActivity()).startVoting(true));
         } else {
             binding.hostButton.setVisibility(INVISIBLE);
         }
 
         return binding.getRoot();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (activity != null) {
-            activity.handleHostSessionFragmentClose();
-        }
     }
 }
