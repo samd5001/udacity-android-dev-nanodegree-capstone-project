@@ -2,6 +2,7 @@ package com.sdunk.jiraestimator.api;
 
 import android.content.Context;
 
+import com.google.android.gms.nearby.Nearby;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -15,6 +16,7 @@ import com.sdunk.jiraestimator.model.GenericResponse;
 import com.sdunk.jiraestimator.model.JiraIssue;
 import com.sdunk.jiraestimator.model.Project;
 import com.sdunk.jiraestimator.model.User;
+import com.sdunk.jiraestimator.nearby.EstimateNearbyService;
 import com.sdunk.jiraestimator.view.estimate.EstimateActivity;
 import com.sdunk.jiraestimator.view.login.LoginUser;
 
@@ -80,6 +82,7 @@ public class APIUtils {
      */
     public static void updateIssuePoints(User user, String key, String points, EstimateActivity activity) {
         JiraService service = JiraServiceFactory.buildService(user.getJiraUrl());
+        EstimateNearbyService estimateNearbyService = EstimateNearbyService.getInstance();
         if (service != null) {
             Timber.d("Sending GET request to /rest/api/3/field");
 
@@ -112,10 +115,10 @@ public class APIUtils {
                                         public void onResponse(@NotNull Call<JsonObject> call, @NotNull Response<JsonObject> response) {
                                             if (response.code() == 204) {
                                                 Timber.d("Issue with key %s success response received", key);
-                                                activity.handleSuccessfulVote(points);
+                                                estimateNearbyService.handleSuccessfulVote(points);
                                             } else {
                                                 Timber.d("Issue with key %s fail response received", key);
-                                                activity.handleFailedVote(points);
+                                                estimateNearbyService.handleFailedVote(points);
                                             }
                                             setIdling();
                                         }
@@ -123,7 +126,7 @@ public class APIUtils {
                                         @Override
                                         public void onFailure(@NotNull Call<JsonObject> call, @NotNull Throwable t) {
                                             Timber.d("Error occurred when calling update on issue with key %s", key);
-                                            activity.handleFailedVote(points);
+                                            estimateNearbyService.handleFailedVote(points);
                                             setIdling();
                                         }
                                     });
@@ -134,7 +137,7 @@ public class APIUtils {
                 @Override
                 public void onFailure(@NotNull Call<List<Field>> call, @NotNull Throwable t) {
                     Timber.d("Request to /rest/api/3/field failed");
-                    activity.handleFailedVote(points);
+                    estimateNearbyService.handleFailedVote(points);
                     setIdling();
                 }
             });

@@ -2,15 +2,19 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/issue_list"
-        android:name="com.sdunk.jiraestimator.view.issues.IssueListFragment"
+    <LinearLayout
+        android:id="@+id/issue_list_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        app:layoutManager="LinearLayoutManager"
-        tools:context=".view.issues.IssueListActivity"
-        tools:listitem="@layout/issue_list_item" />
+        android:layout_height="match_parent">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/issue_list"
+            android:name="com.sdunk.jiraestimator.view.issues.IssueListFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            app:layoutManager="LinearLayoutManager"
+            tools:context=".view.issues.IssueListActivity"
+            tools:listitem="@layout/issue_list_item" />
+    </LinearLayout>
 </layout>

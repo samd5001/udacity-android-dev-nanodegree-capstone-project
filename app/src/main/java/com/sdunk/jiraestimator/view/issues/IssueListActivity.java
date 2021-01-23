@@ -54,7 +54,7 @@ public class IssueListActivity extends AppCompatActivity {
         new APIUtils(getApplicationContext()).updateIssueCache();
 
         ActivityIssueListBinding activityBinding = DataBindingUtil.setContentView(this, R.layout.activity_issue_list);
-        listBinding = DataBindingUtil.getBinding(activityBinding.issueListLayout.issueList);
+        listBinding = DataBindingUtil.getBinding(activityBinding.issueListLayoutContainer.issueListLayout);
 
         if (listBinding != null && listBinding.issueDetailContainer != null) {
             mTwoPane = true;

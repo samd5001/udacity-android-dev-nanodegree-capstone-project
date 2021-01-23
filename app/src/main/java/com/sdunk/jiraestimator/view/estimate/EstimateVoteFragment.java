@@ -13,58 +13,60 @@ import com.sdunk.jiraestimator.databinding.VoteCardItemBinding;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
+@NoArgsConstructor
+public class EstimateVoteFragment extends AbstractEstimateVoteFragment {
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class EstimateVoteFragment extends Fragment {
 
-    private EstimateActivity activity;
-
-    private GenericRVAdapter<String, VoteCardItemBinding> gridAdapter;
-
-    public static EstimateVoteFragment newInstance(GenericRVAdapter<String, VoteCardItemBinding> gridAdapter) {
+    public static EstimateVoteFragment newInstance() {
         EstimateVoteFragment fragment = new EstimateVoteFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
 
-        fragment.gridAdapter = gridAdapter;
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TransitionInflater inflater = TransitionInflater.from(requireContext());
-        setEnterTransition(inflater.inflateTransition(R.transition.explode));
-        setExitTransition(inflater.inflateTransition(R.transition.fade));
-
-        activity = ((EstimateActivity) getActivity());
-        if (activity != null) {
-            activity.getBinding().estimateAppBar.setVisibility(GONE);
-        }
+        setEnterTransition(TransitionInflater.from(requireContext()).inflateTransition(R.transition.explode));
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        activity.getBinding().estimateAppBar.setVisibility(VISIBLE);
-    }
+
 
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        hideAppBar();
+
         FragmentEstimateVoteBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_estimate_vote, container, false);
 
-
+        ArrayList<String> voteOptions = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.estimate_options)));
         binding.voteCardGrid.setLayoutManager(new GridLayoutManager(getActivity(), 3));
-        binding.voteCardGrid.setAdapter(gridAdapter);
+        binding.voteCardGrid.setAdapter(new GenericRVAdapter<String, VoteCardItemBinding>(voteOptions) {
+
+            @Override
+            public int getLayoutResId() {
+                return R.layout.vote_card_item;
+            }
+
+            @Override
+            public void onBindData(String vote, int position, VoteCardItemBinding binding) {
+                binding.setVoteOption(vote);
+            }
+
+            @Override
+            public void onItemClick(String vote, int position) {
+                estimateNearbyService.submitVote(vote);
+            }
+        });
         binding.voteCardGrid.setHasFixedSize(true);
 
         return binding.getRoot();

@@ -25,6 +25,12 @@ public abstract class GenericRVAdapter<T, D> extends RecyclerView.Adapter<Generi
 
     public abstract void onItemClick(T model, int position);
 
+    public void setValues(ArrayList<T> values) {
+        this.values.clear();
+        this.values.addAll(values);
+        this.notifyDataSetChanged();
+    }
+
     @NotNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {

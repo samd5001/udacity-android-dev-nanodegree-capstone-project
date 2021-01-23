@@ -7,9 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.sdunk.jiraestimator.R;
-import com.sdunk.jiraestimator.adapters.GenericRVAdapter;
-import com.sdunk.jiraestimator.databinding.EstimateSessionItemBinding;
-import com.sdunk.jiraestimator.model.EstimateUser;
+import com.sdunk.jiraestimator.databinding.FragmentEstimateSessionListBinding;
+import com.sdunk.jiraestimator.nearby.EstimateNearbyService;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -21,21 +20,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EstimateSessionListFragment extends Fragment {
 
-    public static final String FRAGMENT_LIST = "list";
+    public static final String FRAGMENT_SESSION_LIST = "session_list";
 
-    private GenericRVAdapter<EstimateUser, EstimateSessionItemBinding> listAdapter;
+    private EstimateNearbyService estimateNearbyService;
 
-    public static EstimateSessionListFragment newInstance(GenericRVAdapter<EstimateUser, EstimateSessionItemBinding> listAdapter) {
-        EstimateSessionListFragment fragment = new EstimateSessionListFragment();
+    FragmentEstimateSessionListBinding binding;
 
-        fragment.listAdapter = listAdapter;
-
-        return fragment;
+    public static EstimateSessionListFragment newInstance() {
+        return new EstimateSessionListFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        estimateNearbyService = EstimateNearbyService.getInstance();
         setExitTransition(TransitionInflater.from(requireContext())
                 .inflateTransition(R.transition.explode));
     }
@@ -43,12 +41,11 @@ public class EstimateSessionListFragment extends Fragment {
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        com.sdunk.jiraestimator.databinding.FragmentEstimateSessionListBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_estimate_session_list, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_estimate_session_list, container, false);
 
         binding.sessionList.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.sessionList.setAdapter(listAdapter);
-
-        binding.hostButton.setOnClickListener(view -> ((EstimateActivity) requireActivity()).startHostingSession());
+        binding.sessionList.setAdapter(estimateNearbyService.createSessionListAdapter());
+        binding.hostButton.setOnClickListener(view -> estimateNearbyService.startHostingSession());
         return binding.getRoot();
     }
 }

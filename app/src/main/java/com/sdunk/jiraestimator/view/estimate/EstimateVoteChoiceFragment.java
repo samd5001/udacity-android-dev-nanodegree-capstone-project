@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.databinding.FragmentEstimateVoteChoiceBinding;
+import com.sdunk.jiraestimator.nearby.EstimateNearbyService;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -16,8 +17,8 @@ import androidx.fragment.app.Fragment;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class EstimateVoteChoiceFragment extends Fragment {
+@NoArgsConstructor
+public class EstimateVoteChoiceFragment extends AbstractEstimateVoteFragment {
 
     private static final String ARG_CHOICE = "arg_choice";
 
@@ -29,23 +30,17 @@ public class EstimateVoteChoiceFragment extends Fragment {
         return fragment;
     }
 
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        TransitionInflater inflater = TransitionInflater.from(requireContext());
-        setEnterTransition(inflater.inflateTransition(R.transition.fade));
-        setExitTransition(inflater.inflateTransition(R.transition.fade));
-    }
-
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        hideAppBar();
+
         FragmentEstimateVoteChoiceBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_estimate_vote_choice, container, false);
 
         if (getArguments() != null && getArguments().containsKey(ARG_CHOICE)) {
             binding.setVoteOption(getArguments().getString(ARG_CHOICE));
-            binding.voteChoice.setOnClickListener((v) -> ((EstimateActivity) requireActivity()).resetVote());
+            binding.voteChoice.setOnClickListener((v) -> estimateNearbyService.resetVote());
         }
 
         return binding.getRoot();
