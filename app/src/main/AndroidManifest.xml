@@ -53,7 +53,7 @@
             android:name=".view.login.LoginActivity"
             android:label="@string/title_activity_login" />
 
-        <receiver android:name=".widget.SelectedIssueWidget" >
+        <receiver android:name=".widget.IssueWidgetProvider" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

@@ -492,40 +492,15 @@ public class EstimateNearbyService {
      */
     public void startDiscovery() {
 
-        connectionsClient
-                .startDiscovery(estimateActivity.getPackageName(), endpointDiscoveryCallback, new DiscoveryOptions.Builder().setStrategy(NEARBY_STRATEGY).build())
-                .addOnSuccessListener((unused) -> {
-                    Timber.d("Nearby Discovery started");
-                    isDiscovering = true;
-                })
-                .addOnFailureListener((e) -> Timber.e(e, "Nearby Discovery failed to start"));
-    }
-
-    /**
-     *
-     */
-    private void startAdvertising() {
-        clearUserData();
-
-        userEstimates.put(estimateActivity.getUser().getEmail() + 20, null);
-        userNames.add(estimateActivity.getUser().getEmail() + 20);
-
-        connectionsClient
-                .startAdvertising(getHostEndpointName(), estimateActivity.getPackageName(), hostConnectionLifecycleCallback, new AdvertisingOptions.Builder().setStrategy(NEARBY_STRATEGY).build())
-                .addOnSuccessListener((unused) -> {
-                    Timber.d("Nearby Advertising started");
-                    isAdvertising = true;
-                })
-                .addOnFailureListener((e) -> Timber.e(e, "Nearby Advertising failed to start"));
-
-    }
-
-    /**
-     *
-     */
-    @NonNull
-    private String getHostEndpointName() {
-        return estimateActivity.getIssueKey() + "%" + estimateActivity.getUser().getEmail() + 20;
+        if (!isDiscovering) {
+            connectionsClient
+                    .startDiscovery(estimateActivity.getPackageName(), endpointDiscoveryCallback, new DiscoveryOptions.Builder().setStrategy(NEARBY_STRATEGY).build())
+                    .addOnSuccessListener((unused) -> {
+                        Timber.d("Nearby Discovery started");
+                        isDiscovering = true;
+                    })
+                    .addOnFailureListener((e) -> Timber.e(e, "Nearby Discovery failed to start"));
+        }
     }
 
     /**
@@ -535,8 +510,28 @@ public class EstimateNearbyService {
         if (isDiscovering) {
             connectionsClient.stopDiscovery();
             isDiscovering = false;
+            hosts.clear();
         }
-        hosts.clear();
+    }
+
+    /**
+     *
+     */
+    private void startAdvertising() {
+        if (!isAdvertising) {
+            clearUserData();
+
+            userEstimates.put(estimateActivity.getUser().getEmail() + 20, null);
+            userNames.add(estimateActivity.getUser().getEmail() + 20);
+
+            connectionsClient
+                    .startAdvertising(getHostEndpointName(), estimateActivity.getPackageName(), hostConnectionLifecycleCallback, new AdvertisingOptions.Builder().setStrategy(NEARBY_STRATEGY).build())
+                    .addOnSuccessListener((unused) -> {
+                        Timber.d("Nearby Advertising started");
+                        isAdvertising = true;
+                    })
+                    .addOnFailureListener((e) -> Timber.e(e, "Nearby Advertising failed to start"));
+        }
     }
 
     /**
@@ -546,8 +541,16 @@ public class EstimateNearbyService {
         if (isAdvertising) {
             connectionsClient.stopAdvertising();
             isAdvertising = false;
+            hosting = false;
         }
-        hosting = false;
+    }
+
+    /**
+     *
+     */
+    @NonNull
+    private String getHostEndpointName() {
+        return estimateActivity.getIssueKey() + "%" + estimateActivity.getUser().getEmail() + 20;
     }
 
     /**

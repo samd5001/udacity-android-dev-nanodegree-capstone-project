@@ -12,37 +12,43 @@ import android.widget.RemoteViews;
 import com.sdunk.jiraestimator.BuildConfig;
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.SplashScreenActivity;
+import com.sdunk.jiraestimator.db.DBExecutor;
 import com.sdunk.jiraestimator.db.issue.IssueDatabase;
 import com.sdunk.jiraestimator.model.JiraIssue;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+
 import static android.content.Context.MODE_PRIVATE;
 
-public class SelectedIssueWidget extends AppWidgetProvider {
-
-    public static final String PREF_STORY_KEY = "pref_story_key";
+public class IssueWidgetProvider extends AppWidgetProvider {
 
     private void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                         int appWidgetId) {
         // Construct the RemoteViews object
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_selected_issue);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_issue);
 
         SharedPreferences prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID, MODE_PRIVATE);
-        String key = prefs.getString(PREF_STORY_KEY, null);
+        String key = prefs.getString(context.getString(R.string.widget_pref), null);
 
-        JiraIssue issue = key == null ? null :IssueDatabase.getInstance(context).issueDAO().loadIssueByKey(key).getValue();
+        DBExecutor.getInstance().diskIO().execute(() -> {
+            JiraIssue issue = key == null ? null : IssueDatabase.getInstance(context).issueDAO().loadIssueByKey(key);
 
-        if (issue != null) {
-            populateIssueWidget(views, issue);
-        } else {
-            populateEmptyWidget(context, views);
-        }
+            if (issue != null) {
+                populateIssueWidget(views, issue);
+            } else {
+                populateEmptyWidget(context, views);
+            }
 
-        Intent appIntent = new Intent(context, SplashScreenActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, appIntent, 0);
-        views.setOnClickPendingIntent(R.id.widget, pendingIntent);
+            Intent appIntent = new Intent(context, SplashScreenActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, appIntent, 0);
+            views.setOnClickPendingIntent(R.id.widget, pendingIntent);
 
-        // Instruct the widget manager to update the widget
-        appWidgetManager.updateAppWidget(appWidgetId, views);
+            // Instruct the widget manager to update the widget
+            appWidgetManager.updateAppWidget(appWidgetId, views);
+        });
     }
 
     private void populateIssueWidget(RemoteViews views, JiraIssue issue) {
