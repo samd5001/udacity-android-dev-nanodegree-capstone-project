@@ -1,21 +1,11 @@
 package com.sdunk.jiraestimator.view.login;
 
 import com.sdunk.jiraestimator.api.APIUtils;
-import com.sdunk.jiraestimator.api.JiraService;
-import com.sdunk.jiraestimator.api.JiraServiceFactory;
-import com.sdunk.jiraestimator.model.GenericResponse;
-import com.sdunk.jiraestimator.model.Project;
-
-import org.jetbrains.annotations.NotNull;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import timber.log.Timber;
 
 @NoArgsConstructor
 @Getter

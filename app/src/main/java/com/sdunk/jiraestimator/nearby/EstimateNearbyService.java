@@ -55,7 +55,80 @@ public class EstimateNearbyService {
     private static final String VOTE_ERROR = "VOTE_ERROR";
 
     private static final Strategy NEARBY_STRATEGY = Strategy.P2P_STAR;
+    @NonNull
+    @Getter
+    private final ArrayList<EstimateUser> hosts = new ArrayList<>();
+    @NonNull
+    @Getter
+    private final ArrayList<EstimateUser> users = new ArrayList<>();
+    @NonNull
+    @Getter
+    private final ArrayList<String> userNames = new ArrayList<>();
+    @NonNull
+    @Getter
+    private final HashMap<String, String> userEstimates = new HashMap<>();
+    @Setter
+    private ConnectionsClient connectionsClient;
 
+    @Setter
+    private EstimateActivity estimateActivity;
+    /**
+     * PayloadCallback for handling received payloads as a host.
+     */
+    private final PayloadCallback hostPayloadCallback =
+            new PayloadCallback() {
+                @Override
+                public void onPayloadReceived(@NotNull String endpointId, @NotNull Payload payload) {
+                    updateUserEstimates(endpointId, payload);
+                    doEstimation();
+                }
+
+                @Override
+                public void onPayloadTransferUpdate(@NotNull String endpointId, @NotNull PayloadTransferUpdate update) {
+                }
+            };
+    @Getter
+    private boolean hosting = false;
+    private boolean isAdvertising = false;
+    private boolean isDiscovering = false;
+    private String hostEndpoint;
+    @Setter
+    private boolean isVoting = false;
+    private boolean votingFinished = false;
+    /**
+     * ConnectionLifecycleCallback for handling connecting to a host devices
+     */
+    private final ConnectionLifecycleCallback userLifecycleCallback =
+            new ConnectionLifecycleCallback() {
+                @Override
+                public void onConnectionInitiated(@NotNull String endpointId, @NotNull ConnectionInfo connectionInfo) {
+                    Timber.i("onConnectionInitiated: accepting connection");
+                    connectionsClient.acceptConnection(endpointId, userPayloadCallback);
+                    userNames.add(getHostName(connectionInfo.getEndpointName()));
+                    hostEndpoint = endpointId;
+                }
+
+                @Override
+                public void onConnectionResult(@NotNull String endpointId, ConnectionResolution result) {
+                    if (result.getStatus().isSuccess()) {
+                        Timber.i("onConnectionResult: connection successful");
+                        estimateActivity.switchToSessionHostFragment();
+                    } else {
+                        Timber.i("onConnectionResult: connection failed");
+                        clearUserData();
+                    }
+                }
+
+                @Override
+                public void onDisconnected(@NotNull String endpointId) {
+                    if (!votingFinished) {
+                        Timber.i("onDisconnected: endpoint disconnected");
+                        resetActivity();
+                        Toast.makeText(estimateActivity, R.string.error_host_disconnect, Toast.LENGTH_LONG).show();
+                    }
+                }
+            };
+    private GenericRVAdapter<EstimateUser, EstimateSessionItemBinding> sessionListAdapter;
     /**
      * EndpointDiscoveryCallback for updating the session list on the first fragment.
      */
@@ -73,7 +146,7 @@ public class EstimateNearbyService {
 
 
             };
-
+    private GenericRVAdapter<String, EstimateSessionItemBinding> userListAdapter;
     /**
      * ConnectionLifecycleCallback for handling connecting to a user device as a host
      */
@@ -122,12 +195,14 @@ public class EstimateNearbyService {
                         userNames.remove(disconnectedUser.getEmail());
                         userEstimates.remove(endpointId);
                         removeUserFromList(users, endpointId);
-                        Toast.makeText(estimateActivity, estimateActivity.getString(R.string.user_connected_message, disconnectedUser.getEmail()), Toast.LENGTH_SHORT).show();
+                        if (userListAdapter != null) {
+                            userListAdapter.notifyDataSetChanged();
+                        }
+                        Toast.makeText(estimateActivity, estimateActivity.getString(R.string.user_disconnected_message, disconnectedUser.getEmail()), Toast.LENGTH_SHORT).show();
+                        doEstimation();
                     }
                 }
             };
-
-
     /**
      * PayloadCallback for handling received payloads as a user
      */
@@ -143,76 +218,6 @@ public class EstimateNearbyService {
                 }
             };
 
-    /**
-     * ConnectionLifecycleCallback for handling connecting to a host devices
-     */
-    private final ConnectionLifecycleCallback userLifecycleCallback =
-            new ConnectionLifecycleCallback() {
-                @Override
-                public void onConnectionInitiated(@NotNull String endpointId, @NotNull ConnectionInfo connectionInfo) {
-                    Timber.i("onConnectionInitiated: accepting connection");
-                    connectionsClient.acceptConnection(endpointId, userPayloadCallback);
-                    userNames.add(getHostName(connectionInfo.getEndpointName()));
-                    hostEndpoint = endpointId;
-                }
-
-                @Override
-                public void onConnectionResult(@NotNull String endpointId, ConnectionResolution result) {
-                    if (result.getStatus().isSuccess()) {
-                        Timber.i("onConnectionResult: connection successful");
-                        estimateActivity.switchToSessionHostFragment();
-                    } else {
-                        Timber.i("onConnectionResult: connection failed");
-                        clearUserData();
-                    }
-                }
-
-                @Override
-                public void onDisconnected(@NotNull String endpointId) {
-                    if (!votingFinished) {
-                        Timber.i("onDisconnected: endpoint disconnected");
-                        resetActivity();
-                        Toast.makeText(estimateActivity, R.string.error_host_disconnect, Toast.LENGTH_LONG).show();
-                    }
-                }
-            };
-    
-    @Setter
-    private ConnectionsClient connectionsClient;
-
-    @Setter
-    private EstimateActivity estimateActivity;
-
-    @NonNull
-    @Getter
-    private final ArrayList<EstimateUser> hosts = new ArrayList<>();
-
-    @NonNull
-    @Getter
-    private final ArrayList<EstimateUser> users = new ArrayList<>();
-
-    @NonNull
-    @Getter
-    private final ArrayList<String> userNames = new ArrayList<>();
-
-    @NonNull
-    @Getter
-    private final HashMap<String, String> userEstimates = new HashMap<>();
-
-    @Getter
-    private boolean hosting = false;
-
-    private boolean isAdvertising = false;
-
-    private boolean isDiscovering = false;
-
-    private String hostEndpoint;
-
-    private boolean votingFinished = false;
-    
-    private GenericRVAdapter<EstimateUser, EstimateSessionItemBinding> sessionListAdapter;
-    private GenericRVAdapter<String, EstimateSessionItemBinding> userListAdapter;
-
     public static EstimateNearbyService getInstance() {
         return instance;
     }
@@ -224,18 +229,8 @@ public class EstimateNearbyService {
         users.removeIf((user) -> user.getEndpointId().equals(endpointId));
     }
 
-    public void removeConnectedUserFromList(@NonNull String endpointID) {
-        removeUserFromList(users, endpointID);
-    }
-
-
-    public void removeHostFromList(@NonNull String endpointID) {
-        removeUserFromList(hosts, endpointID);
-    }
-
     /**
-     * 
-     * @return
+     *
      */
     public GenericRVAdapter<EstimateUser, EstimateSessionItemBinding> createSessionListAdapter() {
         sessionListAdapter = new GenericRVAdapter<EstimateUser, EstimateSessionItemBinding>(hosts) {
@@ -245,12 +240,12 @@ public class EstimateNearbyService {
             }
 
             @Override
-            public void onBindData(EstimateUser hostName, int position, EstimateSessionItemBinding binding) {
+            public void onBindData(EstimateUser hostName, EstimateSessionItemBinding binding) {
                 binding.setUserName(hostName.getEmail());
             }
 
             @Override
-            public void onItemClick(EstimateUser hostName, int position) {
+            public void onItemClick(EstimateUser hostName) {
                 connectionsClient.requestConnection(estimateActivity.getUser().getEmail(), hostName.getEndpointId(), userLifecycleCallback);
             }
         };
@@ -258,8 +253,7 @@ public class EstimateNearbyService {
     }
 
     /**
-     * 
-     * @return
+     *
      */
     public GenericRVAdapter<String, EstimateSessionItemBinding> createUserListAdapter() {
         userListAdapter = new GenericRVAdapter<String, EstimateSessionItemBinding>(userNames) {
@@ -269,12 +263,12 @@ public class EstimateNearbyService {
             }
 
             @Override
-            public void onBindData(String user, int position, EstimateSessionItemBinding binding) {
+            public void onBindData(String user, EstimateSessionItemBinding binding) {
                 binding.setUserName(user);
             }
 
             @Override
-            public void onItemClick(String hostName, int position) {
+            public void onItemClick(String hostName) {
             }
         };
         return userListAdapter;
@@ -289,22 +283,6 @@ public class EstimateNearbyService {
     private void updateUserEstimates(@NotNull String endpointId, @NotNull Payload payload) {
         userEstimates.replace(endpointId, new String(payload.asBytes(), StandardCharsets.UTF_8));
     }
-
-    /**
-     * PayloadCallback for handling received payloads as a host.
-     */
-    private final PayloadCallback hostPayloadCallback =
-            new PayloadCallback() {
-                @Override
-                public void onPayloadReceived(@NotNull String endpointId, @NotNull Payload payload) {
-                    updateUserEstimates(endpointId, payload);
-                    doEstimation();
-                }
-
-                @Override
-                public void onPayloadTransferUpdate(@NotNull String endpointId, @NotNull PayloadTransferUpdate update) {
-                }
-            };
 
     /**
      * Parses a host payload and handles the payload based on the value
@@ -367,7 +345,7 @@ public class EstimateNearbyService {
      * If there is not a clear winner, the another round of voting will start.
      */
     private void doEstimation() {
-        if (userEstimates.entrySet().stream().allMatch(result -> result.getValue() != null && !result.getValue().isEmpty())) {
+        if (!userEstimates.isEmpty() && userEstimates.entrySet().stream().allMatch(result -> result.getValue() != null && !result.getValue().isEmpty())) {
 
             HashMap<String, Integer> choiceCountMap = new HashMap<>();
             userEstimates.values().forEach(value -> {
@@ -384,7 +362,7 @@ public class EstimateNearbyService {
                         .keySet()
                         .stream()
                         .findFirst()
-                        .ifPresent((choice) -> updateIssuePoints(estimateActivity.getUser(), estimateActivity.getIssueKey(), choice, estimateActivity));
+                        .ifPresent((choice) -> updateIssuePoints(estimateActivity.getUser(), estimateActivity.getIssueKey(), choice));
             } else {
                 choiceCountMap
                         .entrySet()
@@ -465,6 +443,7 @@ public class EstimateNearbyService {
      */
     public void startUserVoteSessions() {
         sendPayloadToAllUsers(START_VOTE);
+        stopAdvertising();
     }
 
     /**
@@ -541,7 +520,6 @@ public class EstimateNearbyService {
         if (isAdvertising) {
             connectionsClient.stopAdvertising();
             isAdvertising = false;
-            hosting = false;
         }
     }
 
@@ -569,6 +547,7 @@ public class EstimateNearbyService {
     public void stopConnections() {
         stopDiscovery();
         stopAdvertising();
+        hosting = false;
         connectionsClient.stopAllEndpoints();
         clearUserData();
     }
@@ -602,11 +581,10 @@ public class EstimateNearbyService {
             }
             estimates.put(user.getEmail() + 20, null);
         }
-        
+
         if (sendStartVote) {
             startUserVoteSessions();
         }
-        estimateActivity.switchToVoteFragment();
     }
 
     /**
@@ -625,7 +603,7 @@ public class EstimateNearbyService {
             sendVoteResultPayloads(VOTE_SUCCESS, vote);
         }
         new APIUtils(estimateActivity).updateIssueCache();
-        String toastMessage = vote.equals("?") ? estimateActivity.getString(R.string.undecided_vote_response) : estimateActivity.getString(R.string.successful_vote_response, vote) ;
+        String toastMessage = vote.equals("?") ? estimateActivity.getString(R.string.undecided_vote_response) : estimateActivity.getString(R.string.successful_vote_response, vote);
         handleVoteFinish(toastMessage);
     }
 

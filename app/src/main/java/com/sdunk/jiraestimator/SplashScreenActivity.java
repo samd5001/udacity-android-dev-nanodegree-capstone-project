@@ -6,15 +6,16 @@ import android.widget.Toast;
 
 import com.sdunk.jiraestimator.api.APIUtils;
 import com.sdunk.jiraestimator.db.DBExecutor;
+import com.sdunk.jiraestimator.db.DBUtils;
 import com.sdunk.jiraestimator.db.issue.IssueDatabase;
 import com.sdunk.jiraestimator.db.project.ProjectDAO;
 import com.sdunk.jiraestimator.db.user.ProjectDatabase;
-import com.sdunk.jiraestimator.db.user.UserDAO;
 import com.sdunk.jiraestimator.db.user.UserDatabase;
 import com.sdunk.jiraestimator.model.Project;
 import com.sdunk.jiraestimator.model.User;
 import com.sdunk.jiraestimator.view.issues.IssueListActivity;
 import com.sdunk.jiraestimator.view.login.LoginActivity;
+import com.sdunk.jiraestimator.view.login.LoginStartActivity;
 import com.sdunk.jiraestimator.view.login.LoginUser;
 import com.sdunk.jiraestimator.view.project.ProjectSelectActivity;
 
@@ -52,7 +53,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         user = UserDatabase.getInstance(getApplicationContext()).userDao().getLoggedInUser();
 
         if (user == null) {
-            startNewActivity(LoginActivity.class);
+            startNewActivity(LoginStartActivity.class);
         } else {
 
 
@@ -63,9 +64,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     }
 
     private void handleUserUnableToConnect() {
-        UserDatabase.getInstance(getApplicationContext()).userDao().logoutUser();
-        ProjectDatabase.getInstance(getApplicationContext()).projectDao().clearProjects();
-        IssueDatabase.getInstance(getApplicationContext()).issueDAO().clearIssues();
+        DBUtils.clearLoggedInData(this);
         runOnUiThread(() -> Toast.makeText(SplashScreenActivity.this, R.string.unable_to_login, Toast.LENGTH_SHORT).show());
         startNewActivity(LoginActivity.class);
     }

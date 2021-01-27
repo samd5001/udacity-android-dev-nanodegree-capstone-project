@@ -7,5 +7,5 @@ import lombok.Value;
 @Value
 public class IssueResponse {
 
-    private List<JiraIssue> issues;
+    List<JiraIssue> issues;
 }

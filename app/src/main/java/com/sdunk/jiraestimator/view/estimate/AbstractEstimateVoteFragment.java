@@ -13,14 +13,14 @@ import static android.view.View.VISIBLE;
 
 public abstract class AbstractEstimateVoteFragment extends Fragment {
 
-    private EstimateActivity activity;
-
     protected EstimateNearbyService estimateNearbyService;
+    private EstimateActivity activity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         estimateNearbyService = EstimateNearbyService.getInstance();
+        estimateNearbyService.setVoting(true);
         TransitionInflater inflater = TransitionInflater.from(requireContext());
         setReenterTransition(inflater.inflateTransition(R.transition.fade));
         setReenterTransition(inflater.inflateTransition(R.transition.fade));
@@ -32,6 +32,7 @@ public abstract class AbstractEstimateVoteFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         activity.getBinding().estimateAppBar.setVisibility(VISIBLE);
+        estimateNearbyService.setVoting(false);
     }
 
     protected void hideAppBar() {

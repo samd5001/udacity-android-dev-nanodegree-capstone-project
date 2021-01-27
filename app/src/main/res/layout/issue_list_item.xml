@@ -29,14 +29,15 @@
             tools:text="Issue Description" />
 
         <TextView
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="4dp"
             android:layout_weight="0"
-            android:paddingBottom="16dp"
-            android:paddingEnd="20dp"
-            android:paddingStart="24dp"
-            android:paddingTop="16dp"
+            android:background="@drawable/point_background"
+            android:gravity="center"
             android:text='@{issue.storyPoints != null  ? Double.toString(issue.storyPoints) : ""}'
+            android:textAlignment="center"
             tools:text="@string/point_placeholder" />
 
     </LinearLayout>

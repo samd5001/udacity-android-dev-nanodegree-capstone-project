@@ -16,17 +16,12 @@ import com.sdunk.jiraestimator.db.DBExecutor;
 import com.sdunk.jiraestimator.db.issue.IssueDatabase;
 import com.sdunk.jiraestimator.model.JiraIssue;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
-
 import static android.content.Context.MODE_PRIVATE;
 
 public class IssueWidgetProvider extends AppWidgetProvider {
 
     private void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                        int appWidgetId) {
+                                 int appWidgetId) {
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_issue);
 
@@ -37,7 +32,7 @@ public class IssueWidgetProvider extends AppWidgetProvider {
             JiraIssue issue = key == null ? null : IssueDatabase.getInstance(context).issueDAO().loadIssueByKey(key);
 
             if (issue != null) {
-                populateIssueWidget(views, issue);
+                populateIssueWidget(context, views, issue);
             } else {
                 populateEmptyWidget(context, views);
             }
@@ -51,11 +46,12 @@ public class IssueWidgetProvider extends AppWidgetProvider {
         });
     }
 
-    private void populateIssueWidget(RemoteViews views, JiraIssue issue) {
+    private void populateIssueWidget(Context context, RemoteViews views, JiraIssue issue) {
+        String storyDescription = issue.getDescription() == null || issue.getDescription().isEmpty() ? context.getString(R.string.no_description) : issue.getDescription();
         views.setTextViewText(R.id.widget_story_name, issue.getKey() + " - " + issue.getName());
-        views.setTextViewText(R.id.widget_story_description, issue.getDescription());
-        views.setTextViewText(R.id.widget_story_points, issue.getStoryPoints().toString());
         views.setViewVisibility(R.id.widget_header, View.VISIBLE);
+        views.setTextViewText(R.id.widget_story_description, storyDescription);
+        views.setTextViewText(R.id.widget_story_points, issue.getStoryPoints() != null ? issue.getStoryPoints().toString() : "");
         views.setViewVisibility(R.id.widget_story_point_container, View.VISIBLE);
     }
 

@@ -6,7 +6,7 @@ import android.os.Bundle;
 
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.db.DBExecutor;
-import com.sdunk.jiraestimator.db.user.UserDatabase;
+import com.sdunk.jiraestimator.db.DBUtils;
 import com.sdunk.jiraestimator.view.login.LoginActivity;
 import com.sdunk.jiraestimator.view.project.ProjectSelectActivity;
 
@@ -54,8 +54,11 @@ public class PreferencesActivity extends AppCompatActivity {
                     DBExecutor.getInstance().diskIO().execute(() -> {
                         Activity activity = SettingsFragment.this.getActivity();
                         if (activity != null) {
-                            UserDatabase.getInstance(activity.getApplicationContext()).userDao().logoutUser();
-                            activity.runOnUiThread(() -> startActivity(new Intent(getContext(), LoginActivity.class)));
+                            DBUtils.clearLoggedInData(requireContext());
+                            Intent intent = new Intent();
+                            intent.setClass(getContext(), LoginActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            activity.runOnUiThread(() -> startActivity(intent));
                         }
                     });
                     return true;

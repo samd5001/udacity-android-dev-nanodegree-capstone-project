@@ -11,7 +11,7 @@ import androidx.room.Update;
 public interface UserDAO {
 
     @Query("SELECT * from users")
-    public User getLoggedInUser();
+    User getLoggedInUser();
 
     @Insert
     void loginUser(User user);

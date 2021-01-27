@@ -35,7 +35,7 @@ public class IssueListActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.settings_menu, menu);
+        getMenuInflater().inflate(R.menu.issue_list_settings, menu);
         return true;
     }
 
@@ -70,12 +70,12 @@ public class IssueListActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onBindData(JiraIssue issue, int position, IssueListItemBinding dataBinding) {
+            public void onBindData(JiraIssue issue, IssueListItemBinding dataBinding) {
                 dataBinding.setIssue(issue);
             }
 
             @Override
-            public void onItemClick(JiraIssue issue, int position) {
+            public void onItemClick(JiraIssue issue) {
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
                     arguments.putString(IssueDetailFragment.ARG_ISSUE, issue.getKey());

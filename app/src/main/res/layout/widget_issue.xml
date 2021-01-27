@@ -12,25 +12,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary">
+
         <TextView
             android:id="@+id/widget_story_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
+            android:textColor="@android:color/white"
             android:textSize="24sp"
             android:textStyle="bold|italic"
-            android:textColor="@android:color/white"
-            android:visibility="gone"
-            tools:text="Story Name"/>
+            tools:text="Story Name" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/widget_text_container"
-        android:layout_marginTop="18dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:layout_marginTop="18dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
         <TextView
             android:id="@+id/widget_story_description"
             android:layout_width="wrap_content"
@@ -38,23 +39,25 @@
             android:layout_margin="@dimen/widget_text_margin"
             android:textSize="14sp"
             android:textStyle="bold"
-            tools:text="@string/description_placeholder"/>
+            tools:text="@string/description_placeholder" />
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/widget_story_point_container"
-        android:layout_marginTop="18dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginTop="18dp"
         android:gravity="center"
-        android:visibility="gone">
+        android:orientation="horizontal">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/widget_text_margin"
+            android:text="@string/points_label"
             android:textSize="14sp"
-            android:textStyle="bold"
-            android:text="@string/points_label"/>
+            android:textStyle="bold" />
+
         <TextView
             android:id="@+id/widget_story_points"
             android:layout_width="wrap_content"
@@ -62,10 +65,8 @@
             android:layout_margin="@dimen/widget_text_margin"
             android:textSize="14sp"
             android:textStyle="bold"
-            tools:text="@string/point_placeholder"/>
+            tools:text="@string/point_placeholder" />
     </LinearLayout>
-
-
 
 
 </LinearLayout>

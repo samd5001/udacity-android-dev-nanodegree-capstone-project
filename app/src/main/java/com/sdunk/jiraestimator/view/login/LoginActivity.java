@@ -80,8 +80,10 @@ public class LoginActivity extends AppCompatActivity {
             UserDatabase.getInstance(getApplicationContext()).userDao().loginUser(user);
             ProjectDatabase.getInstance(getApplicationContext()).projectDao().insertProjects(loginUser.getProjectList());
             runOnUiThread(() -> Toast.makeText(getApplicationContext(), R.string.welcome, Toast.LENGTH_SHORT).show());
-            startActivity(new Intent().setClass(this, ProjectSelectActivity.class));
-            finish();
+            Intent intent = new Intent();
+            intent.setClass(this, ProjectSelectActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         }
     }
 }

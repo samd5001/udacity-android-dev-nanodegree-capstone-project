@@ -3,8 +3,8 @@
     android:opacity="opaque">
     <item android:drawable="@color/colorPrimary" />
     <item
-        android:gravity="center"
         android:width="240dp"
         android:height="240dp"
-        android:drawable="@drawable/ic_launcher_foreground" />
+        android:drawable="@drawable/ic_launcher_foreground"
+        android:gravity="center" />
 </layer-list>

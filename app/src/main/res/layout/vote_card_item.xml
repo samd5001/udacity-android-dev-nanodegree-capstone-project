@@ -7,7 +7,7 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/vote_option"
+            android:id="@+id/vote_option_card"
             android:layout_width="90dp"
             android:layout_height="100dp"
             android:layout_marginHorizontal="15dp"

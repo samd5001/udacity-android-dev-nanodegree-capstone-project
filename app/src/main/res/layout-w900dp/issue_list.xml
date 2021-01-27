@@ -15,6 +15,12 @@
         android:showDividers="middle"
         tools:context=".view.issues.IssueListActivity">
 
+        <FrameLayout
+            android:id="@+id/issue_detail_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/issue_list"
             android:name="com.sdunk.jiraestimator.view.issues.IssueListFragment"
@@ -25,12 +31,6 @@
             app:layoutManager="LinearLayoutManager"
             tools:context="com.sdunk.jiraestimator.view.issues.IssueListActivity"
             tools:listitem="@layout/issue_list_item" />
-
-        <FrameLayout
-            android:id="@+id/issue_detail_container"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3" />
 
     </LinearLayout>
 </layout>

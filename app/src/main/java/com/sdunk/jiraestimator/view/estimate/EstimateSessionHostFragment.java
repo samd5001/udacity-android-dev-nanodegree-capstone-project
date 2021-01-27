@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.sdunk.jiraestimator.R;
-import com.sdunk.jiraestimator.databinding.FragmentEstimateSessionListBinding;
 import com.sdunk.jiraestimator.nearby.EstimateNearbyService;
 
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import static android.view.View.INVISIBLE;

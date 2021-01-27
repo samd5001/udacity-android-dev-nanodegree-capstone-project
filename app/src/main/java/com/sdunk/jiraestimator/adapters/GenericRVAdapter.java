@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public abstract class GenericRVAdapter<T, D> extends RecyclerView.Adapter<GenericRVAdapter<T, D>.ItemViewHolder> {
 
-    private ArrayList<T> values;
+    private final ArrayList<T> values;
 
     public GenericRVAdapter(ArrayList<T> values) {
         this.values = values;
@@ -21,9 +21,9 @@ public abstract class GenericRVAdapter<T, D> extends RecyclerView.Adapter<Generi
 
     public abstract int getLayoutResId();
 
-    public abstract void onBindData(T model, int position, D dataBinding);
+    public abstract void onBindData(T model, D dataBinding);
 
-    public abstract void onItemClick(T model, int position);
+    public abstract void onItemClick(T model);
 
     public void setValues(ArrayList<T> values) {
         this.values.clear();
@@ -40,9 +40,9 @@ public abstract class GenericRVAdapter<T, D> extends RecyclerView.Adapter<Generi
 
     @Override
     public void onBindViewHolder(@NotNull ItemViewHolder holder, final int position) {
-        onBindData(values.get(position), position, holder.dataBinding);
+        onBindData(values.get(position), holder.dataBinding);
 
-        ((ViewDataBinding) holder.dataBinding).getRoot().setOnClickListener(view -> onItemClick(values.get(position), position));
+        ((ViewDataBinding) holder.dataBinding).getRoot().setOnClickListener(view -> onItemClick(values.get(position)));
     }
 
     @Override
@@ -51,7 +51,7 @@ public abstract class GenericRVAdapter<T, D> extends RecyclerView.Adapter<Generi
     }
 
     public class ItemViewHolder extends RecyclerView.ViewHolder {
-        protected D dataBinding;
+        protected final D dataBinding;
 
         @SuppressWarnings("unchecked")
         public ItemViewHolder(ViewDataBinding binding) {

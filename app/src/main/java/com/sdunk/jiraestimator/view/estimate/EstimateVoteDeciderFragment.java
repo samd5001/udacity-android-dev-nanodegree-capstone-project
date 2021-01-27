@@ -32,8 +32,6 @@ public class EstimateVoteDeciderFragment extends AbstractEstimateVoteFragment {
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        hideAppBar();
-
         FragmentEstimateVoteDeciderBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_estimate_vote_decider, container, false);
 
         if (getArguments() != null) {
@@ -44,6 +42,8 @@ public class EstimateVoteDeciderFragment extends AbstractEstimateVoteFragment {
             binding.setVoteOptionB(optionB);
             binding.optionB.setOnClickListener(getVoteOnClickListener(optionB));
         }
+
+        hideAppBar();
 
         return binding.getRoot();
     }

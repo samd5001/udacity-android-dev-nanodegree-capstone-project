@@ -1,10 +1,10 @@
 package com.sdunk.jiraestimator.api;
 
-import androidx.annotation.Nullable;
-import androidx.test.espresso.IdlingResource;
-
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import androidx.annotation.Nullable;
+import androidx.test.espresso.IdlingResource;
 
 public class APIIdlingResource implements IdlingResource {
 

@@ -3,11 +3,6 @@ package com.sdunk.jiraestimator.view;
 import android.content.Intent;
 import android.widget.TextView;
 
-import androidx.test.espresso.ViewInteraction;
-import androidx.test.espresso.matcher.ViewMatchers;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
-
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.db.user.UserDAO;
 import com.sdunk.jiraestimator.db.user.UserDatabase;
@@ -16,6 +11,10 @@ import com.sdunk.jiraestimator.view.login.LoginActivity;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import androidx.test.espresso.ViewInteraction;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.rule.ActivityTestRule;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -37,7 +36,7 @@ import static org.hamcrest.core.AllOf.allOf;
 @RunWith(AndroidJUnit4.class)
 public class LoginActivityTest {
     @Rule
-    public ActivityTestRule<LoginActivity> activityTestRule
+    public final ActivityTestRule<LoginActivity> activityTestRule
             = new ActivityTestRule<>(LoginActivity.class, false, false);
 
     @Test

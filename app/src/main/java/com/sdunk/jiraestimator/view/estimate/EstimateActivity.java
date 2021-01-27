@@ -22,12 +22,12 @@ import java.util.Collections;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.FragmentManager;
 import lombok.Getter;
-import lombok.Setter;
 
 import static com.sdunk.jiraestimator.view.issues.IssueDetailFragment.ARG_ISSUE;
 
@@ -52,7 +52,7 @@ public class EstimateActivity extends AppCompatActivity {
     private User user;
 
     private EstimateNearbyService estimateNearbyService;
-    
+
 
     @Getter
     private ActivityEstimateBinding binding;
@@ -60,8 +60,8 @@ public class EstimateActivity extends AppCompatActivity {
     /**
      *
      */
-    private static boolean hasPermissions(Context context, String... permissions) {
-        for (String permission : permissions) {
+    private static boolean hasPermissions(Context context) {
+        for (String permission : REQUIRED_PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(context, permission)
                     != PackageManager.PERMISSION_GRANTED) {
                 return false;
@@ -131,8 +131,15 @@ public class EstimateActivity extends AppCompatActivity {
     public void onBackPressed() {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        if (fragmentManager.getBackStackEntryCount() > 0) {
-            handleBackPress(fragmentManager);
+        if (fragmentManager.getBackStackEntryCount() == 1) {
+            new AlertDialog.Builder(this)
+                    .setTitle("End Session")
+                    .setMessage("Do you want to disconnect from this session?")
+                    .setPositiveButton("Yes", (dialog, whichButton) -> handleBackPress(fragmentManager))
+                    .setNegativeButton("No", null).show();
+        } else if (fragmentManager.getBackStackEntryCount() == 2) {
+            fragmentManager.popBackStack();
+            estimateNearbyService.resetVote();
         } else {
             super.onBackPressed();
         }
@@ -193,7 +200,7 @@ public class EstimateActivity extends AppCompatActivity {
     public void switchToVoteFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.popBackStack();
-        getSupportFragmentManager()
+        fragmentManager
                 .beginTransaction()
                 .replace(R.id.estimate_fragment_container, EstimateVoteFragment.newInstance())
                 .addToBackStack("session_list")
@@ -207,6 +214,7 @@ public class EstimateActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.estimate_fragment_container, EstimateVoteChoiceFragment.newInstance(vote))
+                .addToBackStack("vote")
                 .commit();
     }
 
@@ -214,9 +222,13 @@ public class EstimateActivity extends AppCompatActivity {
      *
      */
     public void switchToDeciderFragment(String optionA, String optionB) {
-        getSupportFragmentManager()
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.popBackStack();
+        fragmentManager.popBackStack();
+        fragmentManager
                 .beginTransaction()
                 .replace(R.id.estimate_fragment_container, EstimateVoteDeciderFragment.newInstance(optionA, optionB))
+                .addToBackStack("session_list")
                 .commit();
     }
 

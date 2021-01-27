@@ -39,13 +39,9 @@ public class EstimateVoteFragment extends AbstractEstimateVoteFragment {
     }
 
 
-
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        hideAppBar();
-
         FragmentEstimateVoteBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_estimate_vote, container, false);
 
         ArrayList<String> voteOptions = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.estimate_options)));
@@ -58,16 +54,18 @@ public class EstimateVoteFragment extends AbstractEstimateVoteFragment {
             }
 
             @Override
-            public void onBindData(String vote, int position, VoteCardItemBinding binding) {
+            public void onBindData(String vote, VoteCardItemBinding binding) {
                 binding.setVoteOption(vote);
             }
 
             @Override
-            public void onItemClick(String vote, int position) {
+            public void onItemClick(String vote) {
                 estimateNearbyService.submitVote(vote);
             }
         });
         binding.voteCardGrid.setHasFixedSize(true);
+
+        hideAppBar();
 
         return binding.getRoot();
     }

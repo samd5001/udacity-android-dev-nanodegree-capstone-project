@@ -1,5 +1,7 @@
 package com.sdunk.jiraestimator.model;
 
+import org.jetbrains.annotations.NotNull;
+
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -13,16 +15,16 @@ public class Project {
 
     private String name;
 
-    public Project(String key, String name) {
+    public Project(@NotNull String key, String name) {
         this.key = key;
         this.name = name;
     }
 
-    public String getKey() {
+    public @NotNull String getKey() {
         return key;
     }
 
-    public void setKey(String key) {
+    public void setKey(@NotNull String key) {
         this.key = key;
     }
 

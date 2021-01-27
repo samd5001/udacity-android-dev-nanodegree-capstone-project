@@ -26,7 +26,7 @@ public class User {
 
     private String token;
 
-    public User(String jiraUrl, @Nullable String projectKey, String email, String token) {
+    public User(String jiraUrl, @Nullable String projectKey, @NotNull String email, String token) {
         this.jiraUrl = jiraUrl;
         this.projectKey = projectKey;
         this.email = email;

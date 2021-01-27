@@ -2,7 +2,6 @@ package com.sdunk.jiraestimator.api;
 
 import android.content.Context;
 
-import com.google.android.gms.nearby.Nearby;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -17,7 +16,6 @@ import com.sdunk.jiraestimator.model.JiraIssue;
 import com.sdunk.jiraestimator.model.Project;
 import com.sdunk.jiraestimator.model.User;
 import com.sdunk.jiraestimator.nearby.EstimateNearbyService;
-import com.sdunk.jiraestimator.view.estimate.EstimateActivity;
 import com.sdunk.jiraestimator.view.login.LoginUser;
 
 import org.jetbrains.annotations.NotNull;
@@ -36,9 +34,8 @@ import timber.log.Timber;
 @AllArgsConstructor
 public class APIUtils {
 
-    private final Context context;
-
     private static APIIdlingResource apiIdlingResource;
+    private final Context context;
 
     private static JiraIssue convertJsonObjectToPOJO(JsonObject issueJson, String storyPointField) {
         JsonObject fieldsJson = issueJson.getAsJsonObject("fields");
@@ -74,13 +71,11 @@ public class APIUtils {
 
     /**
      * Updates an issue with new story points using the Jira REST API.
-     *
-     * @param user Logged in user.
-     * @param key Key of issue to be updated,
-     * @param points New points to be set.
-     * @param activity {@link EstimateActivity} where the method is called from.
+     *  @param user     Logged in user.
+     * @param key      Key of issue to be updated,
+     * @param points   New points to be set.
      */
-    public static void updateIssuePoints(User user, String key, String points, EstimateActivity activity) {
+    public static void updateIssuePoints(User user, String key, String points) {
         JiraService service = JiraServiceFactory.buildService(user.getJiraUrl());
         EstimateNearbyService estimateNearbyService = EstimateNearbyService.getInstance();
         if (service != null) {
@@ -144,6 +139,59 @@ public class APIUtils {
         }
     }
 
+    public static void getUserProjects(LoginUser loginUser, MutableLiveData<LoginUser> userMutableLiveData) {
+
+        JiraService service = JiraServiceFactory.buildService(loginUser.getUrl());
+        if (service != null) {
+            Call<GenericResponse<Project>> projectCall = service.getProjects(loginUser.getAuthToken());
+
+            projectCall.enqueue(new Callback<GenericResponse<Project>>() {
+                @Override
+                public void onResponse(@NotNull Call<GenericResponse<Project>> call, @NotNull Response<GenericResponse<Project>> response) {
+                    Timber.d("Login response received");
+
+                    if (response.body() != null) {
+                        Timber.d("Login successful");
+                        loginUser.setProjectList(response.body().getValues());
+                    } else {
+                        loginUser.setApiError(response.message());
+                    }
+                    if (userMutableLiveData != null) {
+                        userMutableLiveData.setValue(loginUser);
+                    }
+                    setIdling();
+                }
+
+                @Override
+                public void onFailure(@NotNull Call<GenericResponse<Project>> call, @NotNull Throwable t) {
+                    loginUser.setApiError(t.getMessage());
+                    if (userMutableLiveData != null) {
+                        userMutableLiveData.setValue(loginUser);
+                    }
+                    setIdling();
+                }
+            });
+        }
+    }
+
+    /**
+     * Set idling resource to idle for tests.
+     */
+    private static void setIdling() {
+        if (apiIdlingResource == null) {
+            apiIdlingResource = new APIIdlingResource();
+        }
+        apiIdlingResource.setIdleState();
+    }
+
+    public static APIIdlingResource getApiIdlingResource() {
+        if (apiIdlingResource == null) {
+            apiIdlingResource = new APIIdlingResource();
+        }
+
+        return apiIdlingResource;
+    }
+
     // This method was static taking a Context parameter but was causing a VerifyError when called
     public void updateIssueCache() {
 
@@ -202,58 +250,5 @@ public class APIUtils {
                 }
             }
         });
-    }
-
-    public static void getUserProjects(LoginUser loginUser, MutableLiveData<LoginUser> userMutableLiveData) {
-
-        JiraService service = JiraServiceFactory.buildService(loginUser.getUrl());
-        if (service != null) {
-            Call<GenericResponse<Project>> projectCall = service.getProjects(loginUser.getAuthToken());
-
-            projectCall.enqueue(new Callback<GenericResponse<Project>>() {
-                @Override
-                public void onResponse(@NotNull Call<GenericResponse<Project>> call, @NotNull Response<GenericResponse<Project>> response) {
-                    Timber.d("Login response received");
-
-                    if (response.body() != null) {
-                        Timber.d("Login successful");
-                        loginUser.setProjectList(response.body().getValues());
-                    } else {
-                        loginUser.setApiError(response.message());
-                    }
-                    if (userMutableLiveData != null) {
-                        userMutableLiveData.setValue(loginUser);
-                    }
-                    setIdling();
-                }
-
-                @Override
-                public void onFailure(@NotNull Call<GenericResponse<Project>> call, @NotNull Throwable t) {
-                    loginUser.setApiError(t.getMessage());
-                    if (userMutableLiveData != null) {
-                        userMutableLiveData.setValue(loginUser);
-                    }
-                    setIdling();
-                }
-            });
-        }
-    }
-
-    /**
-     * Set idling resource to idle for tests.
-     */
-    private static void setIdling() {
-        if (apiIdlingResource == null) {
-            apiIdlingResource = new APIIdlingResource();
-        }
-        apiIdlingResource.setIdleState();
-    }
-
-    public static APIIdlingResource getApiIdlingResource() {
-        if (apiIdlingResource == null) {
-            apiIdlingResource = new APIIdlingResource();
-        }
-
-        return apiIdlingResource;
     }
 }

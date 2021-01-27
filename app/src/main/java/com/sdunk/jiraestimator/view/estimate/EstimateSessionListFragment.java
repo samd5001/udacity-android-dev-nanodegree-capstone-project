@@ -20,11 +20,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EstimateSessionListFragment extends Fragment {
 
-    public static final String FRAGMENT_SESSION_LIST = "session_list";
-
-    private EstimateNearbyService estimateNearbyService;
-
     FragmentEstimateSessionListBinding binding;
+    private EstimateNearbyService estimateNearbyService;
 
     public static EstimateSessionListFragment newInstance() {
         return new EstimateSessionListFragment();

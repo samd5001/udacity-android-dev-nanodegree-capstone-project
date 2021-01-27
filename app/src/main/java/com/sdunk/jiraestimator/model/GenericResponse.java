@@ -6,5 +6,5 @@ import lombok.Value;
 
 @Value
 public class GenericResponse<T> {
-    private List<T> values;
+    List<T> values;
 }

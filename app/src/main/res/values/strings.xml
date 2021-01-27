@@ -34,6 +34,7 @@
     <string name="unable_to_login">Unable to connect, please login again</string>
     <string name="project_not_found">Project not found, please select a new project</string>
     <string name="user_connected_message">User %1$s connected</string>
+    <string name="user_disconnected_message">User %1$s disconnected</string>
 
     <string name="widget_empty_text">No Issue selected</string>
 
@@ -46,5 +47,17 @@
     <string name="description_placeholder">Story Description</string>
     <string name="show_in_widget">Show in widget</string>
     <string name="widget_pref">widget_issue_pref</string>
+    <string name="no_description">No Description Set</string>
+
+    <!-- Accessibility content descriptions   -->
+    <string name="signin_button_cd">Sign in button</string>
+    <string name="url_input_cd">Jira URL text box</string>
+    <string name="email_input_cd">Jira email text box</string>
+    <string name="token_input_cd">Jira token text box</string>
+    <string name="show_in_widget_cd">Show in widget checkbox</string>
+    <string name="estimate_button">Estimate button</string>
+    <string name="host_session_button">Host session button</string>
+    <string name="start_vote_button">Start vote button</string>
+
 
 </resources>

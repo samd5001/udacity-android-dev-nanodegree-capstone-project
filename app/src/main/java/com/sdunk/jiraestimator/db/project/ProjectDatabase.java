@@ -1,8 +1,7 @@
-package com.sdunk.jiraestimator.db.user;
+package com.sdunk.jiraestimator.db.project;
 
 import android.content.Context;
 
-import com.sdunk.jiraestimator.db.project.ProjectDAO;
 import com.sdunk.jiraestimator.model.Project;
 
 import androidx.room.Database;
