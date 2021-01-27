@@ -500,8 +500,8 @@ public class EstimateNearbyService {
         if (!isAdvertising) {
             clearUserData();
 
-            userEstimates.put(estimateActivity.getUser().getEmail() + 20, null);
-            userNames.add(estimateActivity.getUser().getEmail() + 20);
+            userEstimates.put(estimateActivity.getUser().getEmail(), null);
+            userNames.add(estimateActivity.getUser().getEmail());
 
             connectionsClient
                     .startAdvertising(getHostEndpointName(), estimateActivity.getPackageName(), hostConnectionLifecycleCallback, new AdvertisingOptions.Builder().setStrategy(NEARBY_STRATEGY).build())
@@ -528,7 +528,7 @@ public class EstimateNearbyService {
      */
     @NonNull
     private String getHostEndpointName() {
-        return estimateActivity.getIssueKey() + "%" + estimateActivity.getUser().getEmail() + 20;
+        return estimateActivity.getIssueKey() + "%" + estimateActivity.getUser().getEmail();
     }
 
     /**
@@ -557,7 +557,7 @@ public class EstimateNearbyService {
      */
     public void submitVote(String vote) {
         if (hosting) {
-            userEstimates.put(estimateActivity.getUser().getEmail() + 20, vote);
+            userEstimates.put(estimateActivity.getUser().getEmail(), vote);
             doEstimation();
         } else {
             sendVotePayload(vote);
@@ -576,10 +576,10 @@ public class EstimateNearbyService {
         } else {
             HashMap<String, String> estimates = userEstimates;
             User user = estimateActivity.getUser();
-            if (!estimates.containsKey(user.getEmail() + 20)) {
+            if (!estimates.containsKey(user.getEmail())) {
                 sendStartVote = true;
             }
-            estimates.put(user.getEmail() + 20, null);
+            estimates.put(user.getEmail(), null);
         }
 
         if (sendStartVote) {

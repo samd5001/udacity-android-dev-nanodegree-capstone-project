@@ -36,7 +36,4 @@ public abstract class UserDatabase extends RoomDatabase {
 
     public abstract UserDAO userDao();
 
-    public boolean isLoggedIn() {
-        return userDao().getLoggedInUser() != null;
-    }
 }

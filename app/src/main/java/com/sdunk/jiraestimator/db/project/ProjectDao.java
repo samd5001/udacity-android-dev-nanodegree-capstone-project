@@ -13,9 +13,6 @@ import androidx.room.Query;
 @Dao
 public interface ProjectDAO {
 
-    @Query("SELECT * FROM projects WHERE `key` = :key")
-    Project loadByKey(String key);
-
     @Query("SELECT * FROM projects")
     LiveData<List<Project>> loadProjects();
 

@@ -5,7 +5,6 @@ import android.content.Intent;
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.api.APIIdlingResource;
 import com.sdunk.jiraestimator.api.APIUtils;
-import com.sdunk.jiraestimator.db.issue.IssueDatabase;
 import com.sdunk.jiraestimator.view.issues.IssueDetailActivity;
 import com.sdunk.jiraestimator.view.issues.IssueListActivity;
 
@@ -30,7 +29,6 @@ public class IssueListActivityTest {
     public final ActivityTestRule<IssueListActivity> activityTestRule
             = new ActivityTestRule<>(IssueListActivity.class, false, false);
     APIIdlingResource apiIdlingResource;
-    private IssueDatabase db;
 
     @Before
     public void setupTests() {
