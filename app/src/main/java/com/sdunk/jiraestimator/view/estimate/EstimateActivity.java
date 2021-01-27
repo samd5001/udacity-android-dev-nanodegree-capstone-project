@@ -159,7 +159,7 @@ public class EstimateActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        if (!hasPermissions(this, REQUIRED_PERMISSIONS)) {
+        if (!hasPermissions(this)) {
             requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_REQUIRED_PERMISSIONS);
         }
     }

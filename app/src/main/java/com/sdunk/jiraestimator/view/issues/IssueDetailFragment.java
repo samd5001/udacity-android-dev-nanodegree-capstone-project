@@ -45,9 +45,11 @@ public class IssueDetailFragment extends Fragment {
             }
 
             viewModel.getIssue().observe(requireActivity(), jiraIssue -> {
-                binding.setIssue(jiraIssue);
-                binding.estimateButton.setEnabled(true);
-                binding.setIssueInWidget(jiraIssue.getKey().equals(prefs.getString(getString(R.string.widget_pref), "NOTSET")));
+                if (jiraIssue != null) {
+                    binding.setIssue(jiraIssue);
+                    binding.estimateButton.setEnabled(true);
+                    binding.setIssueInWidget(jiraIssue.getKey().equals(prefs.getString(getString(R.string.widget_pref), "NOTSET")));
+                }
             });
         }
 

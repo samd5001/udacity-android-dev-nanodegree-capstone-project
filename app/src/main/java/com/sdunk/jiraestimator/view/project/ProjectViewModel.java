@@ -3,7 +3,7 @@ package com.sdunk.jiraestimator.view.project;
 import android.app.Application;
 
 import com.sdunk.jiraestimator.db.DBExecutor;
-import com.sdunk.jiraestimator.db.user.ProjectDatabase;
+import com.sdunk.jiraestimator.db.project.ProjectDatabase;
 import com.sdunk.jiraestimator.db.user.UserDatabase;
 import com.sdunk.jiraestimator.model.Project;
 import com.sdunk.jiraestimator.model.User;

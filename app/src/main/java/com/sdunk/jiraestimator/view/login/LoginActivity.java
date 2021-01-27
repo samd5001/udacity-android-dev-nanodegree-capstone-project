@@ -9,7 +9,7 @@ import android.widget.Toast;
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.databinding.ActivityLoginBinding;
 import com.sdunk.jiraestimator.db.DBExecutor;
-import com.sdunk.jiraestimator.db.user.ProjectDatabase;
+import com.sdunk.jiraestimator.db.project.ProjectDatabase;
 import com.sdunk.jiraestimator.db.user.UserDatabase;
 import com.sdunk.jiraestimator.model.User;
 import com.sdunk.jiraestimator.view.project.ProjectSelectActivity;

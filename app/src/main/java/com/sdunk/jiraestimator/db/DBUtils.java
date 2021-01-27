@@ -5,7 +5,7 @@ import android.content.Context;
 import com.sdunk.jiraestimator.BuildConfig;
 import com.sdunk.jiraestimator.R;
 import com.sdunk.jiraestimator.db.issue.IssueDatabase;
-import com.sdunk.jiraestimator.db.user.ProjectDatabase;
+import com.sdunk.jiraestimator.db.project.ProjectDatabase;
 import com.sdunk.jiraestimator.db.user.UserDatabase;
 
 import static android.content.Context.MODE_PRIVATE;

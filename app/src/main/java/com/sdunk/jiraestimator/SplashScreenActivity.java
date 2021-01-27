@@ -9,7 +9,7 @@ import com.sdunk.jiraestimator.db.DBExecutor;
 import com.sdunk.jiraestimator.db.DBUtils;
 import com.sdunk.jiraestimator.db.issue.IssueDatabase;
 import com.sdunk.jiraestimator.db.project.ProjectDAO;
-import com.sdunk.jiraestimator.db.user.ProjectDatabase;
+import com.sdunk.jiraestimator.db.project.ProjectDatabase;
 import com.sdunk.jiraestimator.db.user.UserDatabase;
 import com.sdunk.jiraestimator.model.Project;
 import com.sdunk.jiraestimator.model.User;
